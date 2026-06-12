@@ -38,6 +38,20 @@ export default function Navbar() {
           Usuários
         </Link>
 
+        <Link
+          className="nav-link nav-custom"
+          to="/matriculas"
+        >
+          Matrículas
+        </Link>
+
+        <Link
+          className="nav-link nav-custom"
+          to="/certificados"
+        >
+          Certificados
+        </Link>
+
       </div>
     </nav>
   )

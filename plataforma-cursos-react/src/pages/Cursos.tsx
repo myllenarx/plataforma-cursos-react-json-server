@@ -126,7 +126,7 @@ export default function Cursos() {
       <div className="row">
         {cursos.map((curso) => (
           <div className="col-md-4 mb-3" key={curso.id}>
-            <div className="card shadow-sm p-3">
+            <div className="card shadow-sm p-4 h-100 curso-card">
 
               {/* EDIT MODE */}
               {editando === curso.id ? (
@@ -169,34 +169,35 @@ export default function Cursos() {
                 </>
               ) : (
                 <>
-                  <h5>{curso.nome}</h5>
+                  <h5 className="mb-3 fw-bold">{curso.nome}</h5>
 
-                  <p>
-                    Categoria:{" "}
+                  <span className="badge categoria-badge mb-3">
                     {
                       categorias.find(
                         (c) => c.id === curso.idCategoria
                       )?.nome
                     }
-                  </p>
+                  </span>
 
-                  <button
-                    className="btn btn-warning btn-sm me-2"
-                    onClick={() => {
-                      setEditando(curso.id)
-                      setEditNome(curso.nome)
-                      setEditCategoria(curso.idCategoria)
-                    }}
-                  >
-                    Editar
-                  </button>
+                  <div className="d-flex gap-2 mt-3">
+                    <button
+                      className="btn-rose btn-sm"
+                      onClick={() => {
+                        setEditando(curso.id)
+                        setEditNome(curso.nome)
+                        setEditCategoria(curso.idCategoria)
+                      }}
+                    >
+                      Editar
+                    </button>
 
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleDelete(curso.id)}
-                  >
-                    Excluir
-                  </button>
+                    <button
+                      className="btn btn-dark-custom btn-sm"
+                      onClick={() => handleDelete(curso.id)}
+                    >
+                      Excluir
+                    </button>
+                  </div>
                 </>
               )}
 

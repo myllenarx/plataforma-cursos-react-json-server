@@ -211,3 +211,20 @@ h5 {
   font-weight: bold;
   color: #1E1E1E;
 }
+
+.categoria-badge {
+  background-color: #D8A7B1;
+  color: white;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 20px;
+}
+
+.curso-card {
+  border-radius: 16px;
+  transition: 0.3s;
+}
+
+.curso-card:hover {
+  transform: translateY(-4px);
+}

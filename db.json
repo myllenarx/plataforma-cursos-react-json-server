@@ -1,6 +1,40 @@
 {
-  "usuarios": [],
-  "categorias": [],
-  "cursos": [],
-  "matriculas": []
+  "usuarios": [
+    {
+      "id": "1",
+      "nome": "Maria",
+      "email": "maria@email.com"
+    },
+    {
+      "nome": "Myllena",
+      "email": "myllena@gmail.com",
+      "id": "jdvbH0qvhDY"
+    }
+  ],
+  "categorias": [
+    {
+      "id": "1",
+      "nome": "Programação",
+      "descricao": "Cursos de desenvolvimento"
+    }
+  ],
+  "cursos": [
+    {
+      "id": "1",
+      "nome": "React",
+      "idCategoria": 1
+    }
+  ],
+  "matriculas": [
+    {
+      "idUsuario": null,
+      "idCurso": 1,
+      "dataMatricula": "12/06/2026",
+      "id": "yn9rHiTtZm8"
+    }
+  ],
+
+  "certificados": [],
+  
+  "$schema": "./node_modules/json-server/schema.json"
 }
