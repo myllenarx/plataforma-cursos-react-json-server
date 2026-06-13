@@ -1,72 +1,39 @@
 {
   "usuarios": [
     {
-      "id": "1",
-      "nome": "Maria",
-      "email": "maria@email.com"
-    },
-    {
       "nome": "Myllena",
       "email": "myllena@gmail.com",
-      "id": "jdvbH0qvhDY"
+      "id": "Dpfg1pg65IU"
     }
   ],
   "categorias": [
     {
-      "id": "1",
       "nome": "Programação",
-      "descricao": "Cursos de desenvolvimento"
-    },
-    {
-      "nome": "Desenvolvimeto Web",
-      "descricao": "Cursos voltados para criação de aplicações web utilizando tecnologias modernas de front-end e back-end.",
-      "id": "54MKCiW8sG4"
+      "descricao": "Cursos voltados para desenvolvimento de software e lógica de programação.",
+      "id": "EYkzT8-m7hY"
     }
   ],
   "cursos": [
     {
-      "id": "1",
-      "nome": "React",
-      "idCategoria": 1
-    },
-    {
-      "nome": "React para Aplicações Modernas",
+      "nome": "JavaScript",
       "idCategoria": null,
-      "id": "Igs3fPvOS1M"
+      "id": "ofqSa7s1REw"
     }
   ],
   "matriculas": [
     {
-      "idUsuario": null,
-      "idCurso": 1,
-      "dataMatricula": "12/06/2026",
-      "id": "yn9rHiTtZm8"
-    },
-    {
-      "idUsuario": 1,
-      "idCurso": 1,
+      "idUsuario": "Dpfg1pg65IU",
+      "idCurso": "ofqSa7s1REw",
       "dataMatricula": "13/06/2026",
-      "id": "33seTR74Avg"
+      "id": "DODiGVwljvM"
     }
   ],
   "certificados": [
     {
-      "usuario": "Maria",
-      "curso": "React",
-      "codigo": "CERT-11921",
-      "id": "XzDR0dmuQpQ"
-    },
-    {
-      "usuario": "Maria",
-      "curso": "React",
-      "codigo": "CERT-13635",
-      "id": "-lPUDhU72rQ"
-    },
-    {
       "usuario": "Myllena",
-      "curso": "React para Aplicações Modernas",
-      "codigo": "CERT-27259",
-      "id": "4gV9xPi58Yk"
+      "curso": "JavaScript",
+      "codigo": "CERT-88502",
+      "id": "-j4W4RO3oRM"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

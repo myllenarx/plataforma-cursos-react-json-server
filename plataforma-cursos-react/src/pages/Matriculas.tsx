@@ -14,8 +14,8 @@ export default function Matriculas() {
   const [cursos, setCursos] = useState<any[]>([])
   const [matriculas, setMatriculas] = useState<any[]>([])
 
-  const [idUsuario, setIdUsuario] = useState(0)
-  const [idCurso, setIdCurso] = useState(0)
+  const [idUsuario, setIdUsuario] = useState("")
+  const [idCurso, setIdCurso] = useState("")
 
   function carregarDados() {
     getUsuarios().then((res) => setUsuarios(res.data))
@@ -30,11 +30,18 @@ export default function Matriculas() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
+    if (!idUsuario || !idCurso) {
+      alert("Selecione um usuário e um curso.")
+      return
+    }
+
     createMatricula({
       idUsuario,
       idCurso,
       dataMatricula: new Date().toLocaleDateString()
     }).then(() => {
+      setIdUsuario("")
+      setIdCurso("")
       carregarDados()
     })
   }
@@ -60,9 +67,7 @@ export default function Matriculas() {
           <select
             className="form-control mb-2"
             value={idUsuario}
-            onChange={(e) =>
-              setIdUsuario(Number(e.target.value))
-            }
+            onChange={(e) => setIdUsuario(e.target.value)}
           >
             <option value="">
               Selecione um usuário
@@ -78,9 +83,7 @@ export default function Matriculas() {
           <select
             className="form-control mb-2"
             value={idCurso}
-            onChange={(e) =>
-              setIdCurso(Number(e.target.value))
-            }
+            onChange={(e) => setIdCurso(e.target.value)}
           >
             <option value="">
               Selecione um curso
@@ -112,18 +115,17 @@ export default function Matriculas() {
               <h5>
                 {
                   usuarios.find(
-                    (u) => u.id === mat.idUsuario
-                  )?.nome
+                    (u) => String(u.id) === String(mat.idUsuario)
+                  )?.nome || "Usuário não encontrado"
                 }
               </h5>
 
               <p>
-                Curso:
-                {" "}
+                Curso:{" "}
                 {
                   cursos.find(
-                    (c) => c.id === mat.idCurso
-                  )?.nome
+                    (c) => String(c.id) === String(mat.idCurso)
+                  )?.nome || "Curso não encontrado"
                 }
               </p>
 
@@ -133,9 +135,7 @@ export default function Matriculas() {
 
               <button
                 className="btn btn-dark-custom btn-sm"
-                onClick={() =>
-                  handleDelete(mat.id)
-                }
+                onClick={() => handleDelete(mat.id)}
               >
                 Cancelar
               </button>
