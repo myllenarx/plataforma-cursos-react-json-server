@@ -228,3 +228,35 @@ h5 {
 .curso-card:hover {
   transform: translateY(-4px);
 }
+
+.certificado {
+  background: white;
+  border: 3px solid #D8A7B1;
+  border-radius: 16px;
+  padding: 50px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.cert-titulo {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #1E1E1E;
+  letter-spacing: 4px;
+}
+
+.cert-subtitulo {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.cert-nome {
+  color: #D8A7B1;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.cert-curso {
+  color: #1E1E1E;
+  margin-bottom: 20px;
+}

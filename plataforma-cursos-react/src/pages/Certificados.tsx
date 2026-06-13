@@ -26,6 +26,11 @@ export default function Certificados() {
 
   function gerarCertificado() {
 
+    if (!usuario || !curso) {
+      alert("Selecione um usuário e um curso.")
+      return
+    }
+
     const codigo =
       "CERT-" +
       Math.floor(Math.random() * 100000)
@@ -34,10 +39,13 @@ export default function Certificados() {
       usuario: usuario.nome,
       curso: curso.nome,
       codigo
+    }).then(() => {
+      alert("Certificado gerado!")
     })
-
-    alert("Certificado gerado!")
   }
+
+  console.log("USUARIOS", usuarios)
+  console.log("CURSO 1", cursos[0])
 
   return (
     <div className="container mt-4">
@@ -54,7 +62,7 @@ export default function Certificados() {
             setUsuario(
               usuarios.find(
                 (u) =>
-                  u.id === Number(e.target.value)
+                  String(u.id) === e.target.value
               )
             )
           }
@@ -79,7 +87,7 @@ export default function Certificados() {
             setCurso(
               cursos.find(
                 (c) =>
-                  c.id === Number(e.target.value)
+                  String(c.id) === e.target.value
               )
             )
           }
@@ -109,31 +117,47 @@ export default function Certificados() {
 
       {usuario && curso && (
         <div
-          className="card p-5 text-center shadow-sm"
+          className="certificado shadow-sm"
         >
-          <h2>
+          <h1 className="cert-titulo">
+            CERTIFICADO
+          </h1>
+
+          <p className="cert-subtitulo">
             Certificado de Conclusão
-          </h2>
+          </p>
 
           <p className="mt-4">
             Certificamos que
           </p>
 
-          <h3>
+          <h2 className="cert-nome">
             {usuario.nome}
-          </h3>
+          </h2>
 
           <p>
-            concluiu com sucesso o curso
+            concluiu com êxito o curso
           </p>
 
-          <h4>
+          <h3 className="cert-curso">
             {curso.nome}
-          </h4>
+          </h3>
 
           <p className="mt-4">
-            Plataforma de Cursos Online
+            com carga horária e aproveitamento satisfatórios.
           </p>
+
+          <div className="mt-5">
+            <p>
+              Plataforma de Cursos Online
+            </p>
+
+            <small>
+              Código de Verificação:
+              {" "}
+              {Math.floor(Math.random() * 100000)}
+            </small>
+          </div>
         </div>
       )}
 

@@ -75,7 +75,7 @@ export default function Home() {
         </div>
 
         <div className="card shadow-sm p-4 mt-4">
-          <h4>Bem-vinda à Plataforma</h4>
+          <h4>Bem-vindo(a) à Plataforma</h4>
 
           <p>
             Sistema desenvolvido em React + TypeScript + Bootstrap + JSON Server
