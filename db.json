@@ -2,39 +2,32 @@
   "usuarios": [
     {
       "nome": "Myllena",
-      "email": "myllena@gmail.com",
-      "id": "Dpfg1pg65IU"
+      "email": "myllenarx@gmail.com",
+      "id": "ThH9bUEGTkY"
     }
   ],
   "categorias": [
     {
-      "nome": "Programação",
-      "descricao": "Cursos voltados para desenvolvimento de software e lógica de programação.",
-      "id": "EYkzT8-m7hY"
+      "nome": "Desenvolvimento",
+      "descricao": "teste",
+      "id": "2dZgm1inxjw"
     }
   ],
   "cursos": [
     {
       "nome": "JavaScript",
       "idCategoria": null,
-      "id": "ofqSa7s1REw"
+      "id": "avQG5GqgpC0"
     }
   ],
   "matriculas": [
     {
-      "idUsuario": "Dpfg1pg65IU",
-      "idCurso": "ofqSa7s1REw",
+      "idUsuario": "ThH9bUEGTkY",
+      "idCurso": "avQG5GqgpC0",
       "dataMatricula": "13/06/2026",
-      "id": "DODiGVwljvM"
+      "id": "mGG-4Cbqz30"
     }
   ],
-  "certificados": [
-    {
-      "usuario": "Myllena",
-      "curso": "JavaScript",
-      "codigo": "CERT-88502",
-      "id": "-j4W4RO3oRM"
-    }
-  ],
+  "certificados": [],
   "$schema": "./node_modules/json-server/schema.json"
 }
