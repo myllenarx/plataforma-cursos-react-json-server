@@ -1,0 +1,281 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==============================
+// USUARIOS
+// ==============================
+
+model Usuario {
+  ID_Usuario   Int      @id @default(autoincrement())
+  NomeCompleto String
+  Email        String   @unique
+  SenhaHash    String
+  DataCadastro DateTime @default(now())
+
+  cursos       Curso[]
+  matriculas   Matricula[]
+  progressos   ProgressoAula[]
+  avaliacoes   Avaliacao[]
+  certificados Certificado[]
+  assinaturas  Assinatura[]
+}
+
+
+// ==============================
+// CATEGORIAS
+// ==============================
+
+model Categoria {
+  ID_Categoria Int     @id @default(autoincrement())
+  Nome         String  @unique
+  Descricao    String?
+
+  cursos  Curso[]
+  trilhas Trilha[]
+}
+
+
+// ==============================
+// CURSOS
+// ==============================
+
+model Curso {
+  ID_Curso       Int      @id @default(autoincrement())
+  Titulo         String
+  Descricao      String?
+  ID_Instrutor   Int
+  ID_Categoria   Int
+  Nivel          NivelCurso
+  DataPublicacao DateTime?
+  TotalAulas     Int
+  TotalHoras     Decimal
+
+  instrutor Usuario   @relation(fields: [ID_Instrutor], references: [ID_Usuario])
+  categoria Categoria @relation(fields: [ID_Categoria], references: [ID_Categoria])
+
+  modulos      Modulo[]
+  matriculas   Matricula[]
+  avaliacoes   Avaliacao[]
+  trilhas      TrilhaCurso[]
+  certificados Certificado[]
+}
+
+
+// ==============================
+// MODULOS
+// ==============================
+
+model Modulo {
+  ID_Modulo Int    @id @default(autoincrement())
+  ID_Curso  Int
+  Titulo    String
+  Ordem     Int
+
+  curso Curso  @relation(fields: [ID_Curso], references: [ID_Curso])
+  aulas Aula[]
+}
+
+
+// ==============================
+// AULAS
+// ==============================
+
+model Aula {
+  ID_Aula        Int          @id @default(autoincrement())
+  ID_Modulo      Int
+  Titulo         String
+  TipoConteudo   TipoConteudo
+  URL_Conteudo   String?
+  DuracaoMinutos Int?
+  Ordem          Int
+
+  modulo    Modulo           @relation(fields: [ID_Modulo], references: [ID_Modulo])
+  progresso ProgressoAula[]
+}
+
+
+// ==============================
+// MATRICULAS
+// ==============================
+
+model Matricula {
+  ID_Matricula  Int      @id @default(autoincrement())
+  ID_Usuario    Int
+  ID_Curso      Int
+  DataMatricula DateTime @default(now())
+  DataConclusao DateTime?
+
+  usuario Usuario @relation(fields: [ID_Usuario], references: [ID_Usuario])
+  curso   Curso   @relation(fields: [ID_Curso], references: [ID_Curso])
+}
+
+
+// ==============================
+// PROGRESSO_AULAS
+// ==============================
+
+model ProgressoAula {
+  ID_Usuario    Int
+  ID_Aula       Int
+  DataConclusao DateTime?
+  Status        StatusProgresso
+
+  usuario Usuario @relation(fields: [ID_Usuario], references: [ID_Usuario])
+  aula    Aula    @relation(fields: [ID_Aula], references: [ID_Aula])
+
+  @@id([ID_Usuario, ID_Aula])
+}
+
+
+// ==============================
+// AVALIACOES
+// ==============================
+
+model Avaliacao {
+  ID_Avaliacao  Int      @id @default(autoincrement())
+  ID_Usuario    Int
+  ID_Curso      Int
+  Nota          Int
+  Comentario    String?
+  DataAvaliacao DateTime @default(now())
+
+  usuario Usuario @relation(fields: [ID_Usuario], references: [ID_Usuario])
+  curso   Curso   @relation(fields: [ID_Curso], references: [ID_Curso])
+}
+
+
+// ==============================
+// TRILHAS
+// ==============================
+
+model Trilha {
+  ID_Trilha    Int     @id @default(autoincrement())
+  Titulo       String
+  Descricao    String?
+  ID_Categoria Int
+
+  categoria    Categoria      @relation(fields: [ID_Categoria], references: [ID_Categoria])
+  cursos      TrilhaCurso[]
+  certificados Certificado[]
+}
+
+
+// ==============================
+// TRILHAS_CURSOS
+// ==============================
+
+model TrilhaCurso {
+  ID_Trilha Int
+  ID_Curso  Int
+  Ordem     Int
+
+  trilha Trilha @relation(fields: [ID_Trilha], references: [ID_Trilha])
+  curso  Curso  @relation(fields: [ID_Curso], references: [ID_Curso])
+
+  @@id([ID_Trilha, ID_Curso])
+}
+
+
+// ==============================
+// CERTIFICADOS
+// ==============================
+
+model Certificado {
+  ID_Certificado    Int      @id @default(autoincrement())
+  ID_Usuario        Int
+  ID_Curso          Int
+  ID_Trilha         Int?
+  CodigoVerificacao String   @unique
+  DataEmissao       DateTime @default(now())
+
+  usuario Usuario @relation(fields: [ID_Usuario], references: [ID_Usuario])
+  curso   Curso   @relation(fields: [ID_Curso], references: [ID_Curso])
+  trilha  Trilha? @relation(fields: [ID_Trilha], references: [ID_Trilha])
+}
+
+
+// ==============================
+// PLANOS
+// ==============================
+
+model Plano {
+  ID_Plano     Int      @id @default(autoincrement())
+  Nome         String
+  Descricao    String?
+  Preco        Decimal
+  DuracaoMeses Int
+
+  assinaturas Assinatura[]
+}
+
+
+// ==============================
+// ASSINATURAS
+// ==============================
+
+model Assinatura {
+  ID_Assinatura Int      @id @default(autoincrement())
+  ID_Usuario    Int
+  ID_Plano      Int
+  DataInicio    DateTime
+  DataFim       DateTime
+
+  usuario    Usuario     @relation(fields: [ID_Usuario], references: [ID_Usuario])
+  plano      Plano       @relation(fields: [ID_Plano], references: [ID_Plano])
+  pagamentos Pagamento[]
+}
+
+
+// ==============================
+// PAGAMENTOS
+// ==============================
+
+model Pagamento {
+  ID_Pagamento         Int             @id @default(autoincrement())
+  ID_Assinatura        Int
+  ValorPago            Decimal
+  DataPagamento        DateTime
+  MetodoPagamento      MetodoPagamento
+  Id_Transacao_Gateway String
+
+  assinatura Assinatura @relation(fields: [ID_Assinatura], references: [ID_Assinatura])
+}
+
+
+// ==============================
+// ENUMS
+// ==============================
+
+enum NivelCurso {
+  INICIANTE
+  INTERMEDIARIO
+  AVANCADO
+}
+
+enum TipoConteudo {
+  VIDEO
+  TEXTO
+  QUIZ
+}
+
+enum StatusProgresso {
+  CONCLUIDO
+}
+
+enum MetodoPagamento {
+  PIX
+  CARTAO
+  BOLETO
+}
