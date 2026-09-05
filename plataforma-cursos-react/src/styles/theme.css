@@ -1,0 +1,583 @@
+/* =========================================================
+   TEMA DA PLATAFORMA
+   Grafite + Vinho | Minimalista
+========================================================= */
+
+:root {
+  --bg: #121112;
+  --surface: #191718;
+  --surface-2: #211d1e;
+  --surface-3: #282223;
+
+  --border: #342d2f;
+  --border-light: #403739;
+
+  --text: #f0eceb;
+  --text-secondary: #aaa0a2;
+  --text-muted: #776e70;
+
+  --wine: #7c3f46;
+  --wine-light: #a85a63;
+  --wine-dark: #5a2d33;
+
+  --danger: #b85b62;
+
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+
+/* =========================
+   BASE
+========================= */
+
+html,
+body,
+#root {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+body {
+  font-family:
+    Inter,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif !important;
+}
+
+/* =========================
+   BOOTSTRAP - SOBRESCRITA
+========================= */
+
+.container,
+.container-fluid {
+  max-width: none !important;
+}
+
+.card {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: none !important;
+}
+
+.card h1,
+.card h2,
+.card h3,
+.card h4,
+.card h5,
+.card h6 {
+  color: var(--text) !important;
+}
+
+.form-control,
+.form-select,
+textarea.form-control {
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border-light) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: none !important;
+}
+
+.form-control::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+  border-color: var(--wine) !important;
+  box-shadow: 0 0 0 2px rgba(124, 63, 70, 0.18) !important;
+}
+
+.btn {
+  border-radius: var(--radius) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 7px 13px !important;
+  box-shadow: none !important;
+}
+
+.btn-rose,
+.btn-vinho {
+  color: #fff !important;
+  background: var(--wine) !important;
+  border-color: var(--wine) !important;
+}
+
+.btn-rose:hover,
+.btn-vinho:hover {
+  background: var(--wine-light) !important;
+  border-color: var(--wine-light) !important;
+}
+
+.btn-dark-custom {
+  color: var(--text-secondary) !important;
+  background: transparent !important;
+  border: 1px solid var(--border-light) !important;
+}
+
+.btn-dark-custom:hover {
+  color: var(--text) !important;
+  background: var(--surface-3) !important;
+}
+
+.btn-danger {
+  background: transparent !important;
+  border-color: var(--danger) !important;
+  color: var(--danger) !important;
+}
+
+/* =========================
+   TIPOGRAFIA
+========================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text) !important;
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* =========================
+   PÁGINAS ANTIGAS
+========================= */
+
+.container.mt-4 {
+  padding: 24px 28px !important;
+}
+
+.container.mt-4 > h2 {
+  margin-bottom: 20px !important;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+}
+
+/* =========================
+   FORMULÁRIOS ANTIGOS
+========================= */
+
+.container.mt-4 .card.p-3 {
+  padding: 20px !important;
+  margin-bottom: 20px !important;
+}
+
+.container.mt-4 .card.p-3 h5 {
+  margin-bottom: 14px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+}
+
+.container.mt-4 .form-control {
+  min-height: 38px !important;
+  margin-bottom: 10px !important;
+  font-size: 13px !important;
+}
+
+.container.mt-4 textarea.form-control {
+  min-height: 82px !important;
+}
+
+.container.mt-4 .card.p-3 form .btn {
+  margin-top: 4px !important;
+}
+
+/* =========================
+   CARDS DE LISTAGEM
+========================= */
+
+.container.mt-4 .row {
+  margin-left: -6px !important;
+  margin-right: -6px !important;
+}
+
+.container.mt-4 .row > [class*="col-"] {
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+}
+
+.container.mt-4 .row .card {
+  min-height: auto !important;
+  padding: 16px !important;
+  margin-bottom: 12px !important;
+}
+
+.container.mt-4 .row .card h5 {
+  margin-bottom: 6px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+.container.mt-4 .row .card p {
+  margin-bottom: 14px !important;
+  font-size: 13px !important;
+  color: var(--text-secondary) !important;
+}
+
+.container.mt-4 .row .card .btn {
+  margin-right: 6px !important;
+}
+
+/* =========================
+   TABELAS BOOTSTRAP
+========================= */
+
+.table {
+  --bs-table-bg: transparent !important;
+  --bs-table-color: var(--text) !important;
+  --bs-table-border-color: var(--border) !important;
+
+  color: var(--text) !important;
+  margin-bottom: 0 !important;
+}
+
+.table > :not(caption) > * > * {
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+  border-color: var(--border) !important;
+}
+
+.table thead th {
+  color: var(--text-muted) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table tbody td {
+  font-size: 13px !important;
+  vertical-align: middle !important;
+}
+
+.table tbody tr:hover td {
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+}
+
+/* =========================
+   ALERTAS
+========================= */
+
+.alert {
+  border-radius: var(--radius) !important;
+  font-size: 13px !important;
+}
+
+.alert-light {
+  color: var(--text-secondary) !important;
+  background: var(--surface-2) !important;
+  border-color: var(--border) !important;
+}
+
+/* =========================
+   DROPDOWN / MODAL
+========================= */
+
+.dropdown-menu,
+.modal-content {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.dropdown-item {
+  color: var(--text-secondary) !important;
+  font-size: 13px !important;
+}
+
+.dropdown-item:hover {
+  color: var(--text) !important;
+  background: var(--surface-3) !important;
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (max-width: 768px) {
+  .container.mt-4 {
+    padding: 18px 16px !important;
+  }
+
+  .container.mt-4 > h2 {
+    font-size: 21px !important;
+  }
+}
+
+/* =========================================================
+   PADRÃO VISUAL DOS CRUDs
+   Somente formato, proporção e botões
+========================================================= */
+
+/* Container das páginas CRUD */
+.crud-page {
+  max-width: 1180px !important;
+  margin: 0 auto;
+  padding: 24px 28px !important;
+}
+
+/* Cabeçalho */
+.crud-page-header {
+  margin-bottom: 20px;
+}
+
+.crud-page-header h2 {
+  margin-bottom: 4px !important;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+}
+
+.crud-page-header p {
+  margin: 0;
+  font-size: 13px;
+}
+
+/* =========================================================
+   FORMULÁRIO
+========================================================= */
+
+.crud-form-card {
+  width: 100%;
+  max-width: 720px;
+  margin-bottom: 20px !important;
+  padding: 18px !important;
+}
+
+.crud-form-card h5 {
+  margin-bottom: 16px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+.crud-form-card .form-label {
+  margin-bottom: 5px !important;
+  font-size: 11px !important;
+  font-weight: 500;
+}
+
+.crud-form-card .form-control,
+.crud-form-card .form-select {
+  min-height: 36px !important;
+  padding: 7px 10px !important;
+  font-size: 12px !important;
+}
+
+.crud-form-card textarea {
+  min-height: 75px !important;
+}
+
+.crud-form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+/* =========================================================
+   LISTAGEM
+========================================================= */
+
+.crud-list-card {
+  width: 100%;
+  padding: 0 !important;
+}
+
+.crud-list-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.crud-list-header h5 {
+  margin: 0 0 3px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+.crud-list-header small {
+  font-size: 11px;
+}
+
+/* =========================================================
+   CARDS INDIVIDUAIS
+========================================================= */
+
+.crud-item-card {
+  width: 100%;
+  max-width: 360px;
+  padding: 16px !important;
+  margin-bottom: 12px !important;
+}
+
+/* =========================================================
+   BOTÕES — PADRÃO ÚNICO
+========================================================= */
+
+.crud-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 32px !important;
+  padding: 6px 11px !important;
+
+  border-radius: 7px !important;
+
+  font-size: 12px !important;
+  font-weight: 500 !important;
+
+  line-height: 1 !important;
+  box-shadow: none !important;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease !important;
+}
+
+.crud-btn:hover {
+  transform: translateY(-1px);
+}
+
+.crud-btn:active {
+  transform: translateY(0);
+}
+
+/* Principal */
+.crud-btn-primary {
+  color: #fff !important;
+  background: var(--wine) !important;
+  border: 1px solid var(--wine) !important;
+}
+
+.crud-btn-primary:hover {
+  background: var(--wine-light) !important;
+  border-color: var(--wine-light) !important;
+}
+
+/* Secundário */
+.crud-btn-secondary {
+  color: var(--text-secondary) !important;
+  background: transparent !important;
+  border: 1px solid var(--border-light) !important;
+}
+
+.crud-btn-secondary:hover {
+  color: var(--text) !important;
+  background: var(--surface-3) !important;
+}
+
+/* Excluir */
+.crud-btn-delete {
+  color: var(--danger) !important;
+  background: transparent !important;
+  border: 1px solid var(--border-light) !important;
+}
+
+.crud-btn-delete:hover {
+  color: #fff !important;
+  background: var(--danger) !important;
+  border-color: var(--danger) !important;
+}
+
+/* Botões somente com ícone */
+.crud-btn-icon {
+  width: 32px !important;
+  min-width: 32px !important;
+  height: 32px !important;
+
+  padding: 0 !important;
+}
+
+.crud-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+/* =========================================================
+   TABELAS
+========================================================= */
+
+.crud-table th,
+.crud-table td {
+  padding: 11px 14px !important;
+}
+
+.crud-table th {
+  font-size: 10px !important;
+}
+
+.crud-table td {
+  font-size: 12px !important;
+}
+
+/* =========================================================
+   LAYOUT COMPACTO
+========================================================= */
+
+.crud-two-column {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.crud-two-column .crud-form-card {
+  max-width: none;
+  margin: 0 !important;
+}
+
+.crud-two-column .crud-list-card {
+  min-width: 0;
+}
+
+/* =========================================================
+   RESPONSIVO
+========================================================= */
+
+@media (max-width: 900px) {
+  .crud-two-column {
+    grid-template-columns: 1fr;
+  }
+
+  .crud-two-column .crud-form-card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .crud-page {
+    padding: 18px 14px !important;
+  }
+
+  .crud-page-header h2 {
+    font-size: 21px !important;
+  }
+
+  .crud-form-card {
+    padding: 15px !important;
+  }
+
+  .crud-table th,
+  .crud-table td {
+    padding: 9px 10px !important;
+  }
+}

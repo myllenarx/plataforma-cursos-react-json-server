@@ -28,5 +28,15 @@
       "id": "mGG-4Cbqz30"
     }
   ],
-  "certificados": []
+  "certificados": [
+    {
+      "usuario": "Myllena",
+      "curso": "JavaScript",
+      "codigo": "CERT-881322",
+      "dataEmissao": "04/09/2026",
+      "id": "YnUSy5gVX44"
+    }
+  ],
+  "trilhas": [],
+  "$schema": "./node_modules/json-server/schema.json"
 }
