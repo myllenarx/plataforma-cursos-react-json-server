@@ -4,14 +4,9 @@ import {
   getCategorias,
   createCategoria,
   updateCategoria,
-  deleteCategoria
+  deleteCategoria,
+  type Categoria,
 } from "../services/categoriasService"
-
-type Categoria = {
-  id: number
-  nome: string
-  descricao: string
-}
 
 export default function Categorias() {
   const [categorias, setCategorias] = useState<Categoria[]>([])
@@ -19,7 +14,7 @@ export default function Categorias() {
   const [nome, setNome] = useState("")
   const [descricao, setDescricao] = useState("")
 
-  const [editando, setEditando] = useState<number | null>(null)
+  const [editando, setEditando] = useState<string | null>(null)
   const [editNome, setEditNome] = useState("")
   const [editDescricao, setEditDescricao] = useState("")
 
@@ -50,7 +45,7 @@ export default function Categorias() {
     })
   }
 
-  function handleDelete(id: number) {
+  function handleDelete(id: string) {
     if (!window.confirm("Deseja realmente excluir esta categoria?")) {
       return
     }
@@ -65,7 +60,7 @@ export default function Categorias() {
   function iniciarEdicao(categoria: Categoria) {
     setEditando(categoria.id)
     setEditNome(categoria.nome)
-    setEditDescricao(categoria.descricao)
+    setEditDescricao(categoria.descricao ?? "")
   }
 
   function cancelarEdicao() {
@@ -74,7 +69,7 @@ export default function Categorias() {
     setEditDescricao("")
   }
 
-  function handleUpdate(id: number) {
+  function handleUpdate(id: string) {
     if (!editNome.trim()) {
       return
     }

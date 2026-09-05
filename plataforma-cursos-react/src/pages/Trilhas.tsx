@@ -41,8 +41,7 @@ export default function Trilhas() {
     useState<string[]>([])
 
   function carregarDados() {
-    setLoading(true)
-
+    
     Promise.all([
       getTrilhas(),
       getCursos()

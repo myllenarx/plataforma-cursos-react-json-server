@@ -1,12 +1,29 @@
 import api from "./api"
 
-export const getCategorias = () => api.get("/categorias")
+export type Categoria = {
+  id: string
+  nome: string
+  descricao?: string
+}
 
-export const createCategoria = (data: any) =>
-  api.post("/categorias", data)
+export const getCategorias = () =>
+  api.get<Categoria[]>("/categorias")
 
-export const updateCategoria = (id: number, data: any) =>
-  api.put(`/categorias/${id}`, data)
+export const createCategoria = (
+  data: Omit<Categoria, "id">
+) =>
+  api.post<Categoria>("/categorias", data)
 
-export const deleteCategoria = (id: number) =>
+export const updateCategoria = (
+  id: string,
+  data: Partial<Categoria>
+) =>
+  api.patch<Categoria>(
+    `/categorias/${id}`,
+    data
+  )
+
+export const deleteCategoria = (
+  id: string
+) =>
   api.delete(`/categorias/${id}`)

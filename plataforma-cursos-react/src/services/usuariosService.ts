@@ -1,12 +1,27 @@
 import api from "./api"
 
-export const getUsuarios = () => api.get("/usuarios")
+export type Usuario = {
+  id: string
+  nome: string
+  email: string
+}
 
-export const createUsuario = (data: any) =>
-  api.post("/usuarios", data)
+export const getUsuarios = () =>
+  api.get<Usuario[]>("/usuarios")
 
-export const updateUsuario = (id: number, data: any) =>
-  api.put(`/usuarios/${id}`, data)
+export const createUsuario = (
+  data: Omit<Usuario, "id">
+) =>
+  api.post<Usuario>("/usuarios", data)
 
-export const deleteUsuario = (id: number) =>
+export const updateUsuario = (
+  id: string,
+  data: Partial<Usuario>
+) =>
+  api.patch<Usuario>(
+    `/usuarios/${id}`,
+    data
+  )
+
+export const deleteUsuario = (id: string) =>
   api.delete(`/usuarios/${id}`)

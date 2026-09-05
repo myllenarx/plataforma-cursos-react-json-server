@@ -59,8 +59,7 @@ export default function Cursos() {
   const [tituloAula, setTituloAula] = useState("")
 
   function carregarCursos() {
-    setLoading(true)
-
+    
     getCursos()
       .then((res) => {
         setCursos(res.data)

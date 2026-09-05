@@ -1,16 +1,41 @@
 import api from "./api"
 
-export const getCursos = () =>
-  api.get("/cursos")
+export type Aula = {
+  id: string
+  titulo: string
+}
 
-export const createCurso = (data: any) =>
-  api.post("/cursos", data)
+export type Modulo = {
+  id: string
+  titulo: string
+  aulas: Aula[]
+}
+
+export type Curso = {
+  id: string
+  nome: string
+  idCategoria: string | null
+  modulos?: Modulo[]
+}
+
+export const getCursos = () =>
+  api.get<Curso[]>("/cursos")
+
+export const createCurso = (
+  data: Omit<Curso, "id">
+) =>
+  api.post<Curso>("/cursos", data)
 
 export const updateCurso = (
   id: string,
-  data: any
+  data: Partial<Curso>
 ) =>
-  api.put(`/cursos/${id}`, data)
+  api.patch<Curso>(
+    `/cursos/${id}`,
+    data
+  )
 
-export const deleteCurso = (id: string) =>
+export const deleteCurso = (
+  id: string
+) =>
   api.delete(`/cursos/${id}`)

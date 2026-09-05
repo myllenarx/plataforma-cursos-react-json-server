@@ -1,9 +1,14 @@
 {
   "usuarios": [
     {
-      "nome": "Myllena",
+      "nome": "Myllena R",
       "email": "myllenarx@gmail.com",
       "id": "ThH9bUEGTkY"
+    },
+    {
+      "nome": "Myrella",
+      "email": "myrellars@gmail.com",
+      "id": "iVU5Jjv1FSc"
     }
   ],
   "categorias": [
@@ -17,7 +22,27 @@
     {
       "nome": "JavaScript",
       "idCategoria": null,
-      "id": "avQG5GqgpC0"
+      "id": "avQG5GqgpC0",
+      "modulos": [
+        {
+          "id": "f7e7ba37-a5de-4567-abe3-844c9fb77b6a",
+          "titulo": "123",
+          "aulas": [
+            {
+              "id": "54302fe9-7b2f-457a-b277-1798a0561ee8",
+              "titulo": "01"
+            },
+            {
+              "id": "39da1890-1059-47dc-9058-4257202b7b4c",
+              "titulo": "02"
+            },
+            {
+              "id": "367b7205-33df-4295-9ba9-6c7c7aefe366",
+              "titulo": "03"
+            }
+          ]
+        }
+      ]
     }
   ],
   "matriculas": [
@@ -25,18 +50,43 @@
       "idUsuario": "ThH9bUEGTkY",
       "idCurso": "avQG5GqgpC0",
       "dataMatricula": "13/06/2026",
-      "id": "mGG-4Cbqz30"
+      "id": "mGG-4Cbqz30",
+      "dataConclusao": "05/09/2026"
     }
   ],
   "certificados": [
     {
-      "usuario": "Myllena",
+      "idUsuario": "ThH9bUEGTkY",
+      "idCurso": "avQG5GqgpC0",
+      "usuario": "Myllena R",
       "curso": "JavaScript",
-      "codigo": "CERT-881322",
-      "dataEmissao": "04/09/2026",
-      "id": "YnUSy5gVX44"
+      "codigo": "CERT-579367",
+      "dataEmissao": "05/09/2026",
+      "id": "VCM2sNZVfEc"
     }
   ],
   "trilhas": [],
-  "$schema": "./node_modules/json-server/schema.json"
+  "progressos": [
+    {
+      "idUsuario": "ThH9bUEGTkY",
+      "idCurso": "avQG5GqgpC0",
+      "idAula": "54302fe9-7b2f-457a-b277-1798a0561ee8",
+      "dataConclusao": "05/09/2026",
+      "id": "tBOw1vM4dA0"
+    },
+    {
+      "idUsuario": "ThH9bUEGTkY",
+      "idCurso": "avQG5GqgpC0",
+      "idAula": "39da1890-1059-47dc-9058-4257202b7b4c",
+      "dataConclusao": "05/09/2026",
+      "id": "9y1lW0dmSnE"
+    },
+    {
+      "idUsuario": "ThH9bUEGTkY",
+      "idCurso": "avQG5GqgpC0",
+      "idAula": "367b7205-33df-4295-9ba9-6c7c7aefe366",
+      "dataConclusao": "05/09/2026",
+      "id": "lLVGsmqerhg"
+    }
+  ]
 }
