@@ -36,26 +36,26 @@ export type UsuarioSumAggregateOutputType = {
 
 export type UsuarioMinAggregateOutputType = {
   ID_Usuario: number | null
-  NomeCompleto: string | null
-  Email: string | null
-  SenhaHash: string | null
-  DataCadastro: Date | null
+  name: string | null
+  email: string | null
+  password: string | null
+  date: Date | null
 }
 
 export type UsuarioMaxAggregateOutputType = {
   ID_Usuario: number | null
-  NomeCompleto: string | null
-  Email: string | null
-  SenhaHash: string | null
-  DataCadastro: Date | null
+  name: string | null
+  email: string | null
+  password: string | null
+  date: Date | null
 }
 
 export type UsuarioCountAggregateOutputType = {
   ID_Usuario: number
-  NomeCompleto: number
-  Email: number
-  SenhaHash: number
-  DataCadastro: number
+  name: number
+  email: number
+  password: number
+  date: number
   _all: number
 }
 
@@ -70,26 +70,26 @@ export type UsuarioSumAggregateInputType = {
 
 export type UsuarioMinAggregateInputType = {
   ID_Usuario?: true
-  NomeCompleto?: true
-  Email?: true
-  SenhaHash?: true
-  DataCadastro?: true
+  name?: true
+  email?: true
+  password?: true
+  date?: true
 }
 
 export type UsuarioMaxAggregateInputType = {
   ID_Usuario?: true
-  NomeCompleto?: true
-  Email?: true
-  SenhaHash?: true
-  DataCadastro?: true
+  name?: true
+  email?: true
+  password?: true
+  date?: true
 }
 
 export type UsuarioCountAggregateInputType = {
   ID_Usuario?: true
-  NomeCompleto?: true
-  Email?: true
-  SenhaHash?: true
-  DataCadastro?: true
+  name?: true
+  email?: true
+  password?: true
+  date?: true
   _all?: true
 }
 
@@ -181,10 +181,10 @@ export type UsuarioGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 
 export type UsuarioGroupByOutputType = {
   ID_Usuario: number
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro: Date
+  name: string
+  email: string
+  password: string
+  date: Date
   _count: UsuarioCountAggregateOutputType | null
   _avg: UsuarioAvgAggregateOutputType | null
   _sum: UsuarioSumAggregateOutputType | null
@@ -212,10 +212,10 @@ export type UsuarioWhereInput = {
   OR?: Prisma.UsuarioWhereInput[]
   NOT?: Prisma.UsuarioWhereInput | Prisma.UsuarioWhereInput[]
   ID_Usuario?: Prisma.IntFilter<"Usuario"> | number
-  NomeCompleto?: Prisma.StringFilter<"Usuario"> | string
-  Email?: Prisma.StringFilter<"Usuario"> | string
-  SenhaHash?: Prisma.StringFilter<"Usuario"> | string
-  DataCadastro?: Prisma.DateTimeFilter<"Usuario"> | Date | string
+  name?: Prisma.StringFilter<"Usuario"> | string
+  email?: Prisma.StringFilter<"Usuario"> | string
+  password?: Prisma.StringFilter<"Usuario"> | string
+  date?: Prisma.DateTimeFilter<"Usuario"> | Date | string
   cursos?: Prisma.CursoListRelationFilter
   matriculas?: Prisma.MatriculaListRelationFilter
   progressos?: Prisma.ProgressoAulaListRelationFilter
@@ -226,10 +226,10 @@ export type UsuarioWhereInput = {
 
 export type UsuarioOrderByWithRelationInput = {
   ID_Usuario?: Prisma.SortOrder
-  NomeCompleto?: Prisma.SortOrder
-  Email?: Prisma.SortOrder
-  SenhaHash?: Prisma.SortOrder
-  DataCadastro?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  password?: Prisma.SortOrder
+  date?: Prisma.SortOrder
   cursos?: Prisma.CursoOrderByRelationAggregateInput
   matriculas?: Prisma.MatriculaOrderByRelationAggregateInput
   progressos?: Prisma.ProgressoAulaOrderByRelationAggregateInput
@@ -240,27 +240,27 @@ export type UsuarioOrderByWithRelationInput = {
 
 export type UsuarioWhereUniqueInput = Prisma.AtLeast<{
   ID_Usuario?: number
-  Email?: string
+  email?: string
   AND?: Prisma.UsuarioWhereInput | Prisma.UsuarioWhereInput[]
   OR?: Prisma.UsuarioWhereInput[]
   NOT?: Prisma.UsuarioWhereInput | Prisma.UsuarioWhereInput[]
-  NomeCompleto?: Prisma.StringFilter<"Usuario"> | string
-  SenhaHash?: Prisma.StringFilter<"Usuario"> | string
-  DataCadastro?: Prisma.DateTimeFilter<"Usuario"> | Date | string
+  name?: Prisma.StringFilter<"Usuario"> | string
+  password?: Prisma.StringFilter<"Usuario"> | string
+  date?: Prisma.DateTimeFilter<"Usuario"> | Date | string
   cursos?: Prisma.CursoListRelationFilter
   matriculas?: Prisma.MatriculaListRelationFilter
   progressos?: Prisma.ProgressoAulaListRelationFilter
   avaliacoes?: Prisma.AvaliacaoListRelationFilter
   certificados?: Prisma.CertificadoListRelationFilter
   assinaturas?: Prisma.AssinaturaListRelationFilter
-}, "ID_Usuario" | "Email">
+}, "ID_Usuario" | "email">
 
 export type UsuarioOrderByWithAggregationInput = {
   ID_Usuario?: Prisma.SortOrder
-  NomeCompleto?: Prisma.SortOrder
-  Email?: Prisma.SortOrder
-  SenhaHash?: Prisma.SortOrder
-  DataCadastro?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  password?: Prisma.SortOrder
+  date?: Prisma.SortOrder
   _count?: Prisma.UsuarioCountOrderByAggregateInput
   _avg?: Prisma.UsuarioAvgOrderByAggregateInput
   _max?: Prisma.UsuarioMaxOrderByAggregateInput
@@ -273,17 +273,17 @@ export type UsuarioScalarWhereWithAggregatesInput = {
   OR?: Prisma.UsuarioScalarWhereWithAggregatesInput[]
   NOT?: Prisma.UsuarioScalarWhereWithAggregatesInput | Prisma.UsuarioScalarWhereWithAggregatesInput[]
   ID_Usuario?: Prisma.IntWithAggregatesFilter<"Usuario"> | number
-  NomeCompleto?: Prisma.StringWithAggregatesFilter<"Usuario"> | string
-  Email?: Prisma.StringWithAggregatesFilter<"Usuario"> | string
-  SenhaHash?: Prisma.StringWithAggregatesFilter<"Usuario"> | string
-  DataCadastro?: Prisma.DateTimeWithAggregatesFilter<"Usuario"> | Date | string
+  name?: Prisma.StringWithAggregatesFilter<"Usuario"> | string
+  email?: Prisma.StringWithAggregatesFilter<"Usuario"> | string
+  password?: Prisma.StringWithAggregatesFilter<"Usuario"> | string
+  date?: Prisma.DateTimeWithAggregatesFilter<"Usuario"> | Date | string
 }
 
 export type UsuarioCreateInput = {
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
   cursos?: Prisma.CursoCreateNestedManyWithoutInstrutorInput
   matriculas?: Prisma.MatriculaCreateNestedManyWithoutUsuarioInput
   progressos?: Prisma.ProgressoAulaCreateNestedManyWithoutUsuarioInput
@@ -294,10 +294,10 @@ export type UsuarioCreateInput = {
 
 export type UsuarioUncheckedCreateInput = {
   ID_Usuario?: number
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
   cursos?: Prisma.CursoUncheckedCreateNestedManyWithoutInstrutorInput
   matriculas?: Prisma.MatriculaUncheckedCreateNestedManyWithoutUsuarioInput
   progressos?: Prisma.ProgressoAulaUncheckedCreateNestedManyWithoutUsuarioInput
@@ -307,10 +307,10 @@ export type UsuarioUncheckedCreateInput = {
 }
 
 export type UsuarioUpdateInput = {
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cursos?: Prisma.CursoUpdateManyWithoutInstrutorNestedInput
   matriculas?: Prisma.MatriculaUpdateManyWithoutUsuarioNestedInput
   progressos?: Prisma.ProgressoAulaUpdateManyWithoutUsuarioNestedInput
@@ -321,10 +321,10 @@ export type UsuarioUpdateInput = {
 
 export type UsuarioUncheckedUpdateInput = {
   ID_Usuario?: Prisma.IntFieldUpdateOperationsInput | number
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cursos?: Prisma.CursoUncheckedUpdateManyWithoutInstrutorNestedInput
   matriculas?: Prisma.MatriculaUncheckedUpdateManyWithoutUsuarioNestedInput
   progressos?: Prisma.ProgressoAulaUncheckedUpdateManyWithoutUsuarioNestedInput
@@ -335,33 +335,33 @@ export type UsuarioUncheckedUpdateInput = {
 
 export type UsuarioCreateManyInput = {
   ID_Usuario?: number
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
 }
 
 export type UsuarioUpdateManyMutationInput = {
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UsuarioUncheckedUpdateManyInput = {
   ID_Usuario?: Prisma.IntFieldUpdateOperationsInput | number
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UsuarioCountOrderByAggregateInput = {
   ID_Usuario?: Prisma.SortOrder
-  NomeCompleto?: Prisma.SortOrder
-  Email?: Prisma.SortOrder
-  SenhaHash?: Prisma.SortOrder
-  DataCadastro?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  password?: Prisma.SortOrder
+  date?: Prisma.SortOrder
 }
 
 export type UsuarioAvgOrderByAggregateInput = {
@@ -370,18 +370,18 @@ export type UsuarioAvgOrderByAggregateInput = {
 
 export type UsuarioMaxOrderByAggregateInput = {
   ID_Usuario?: Prisma.SortOrder
-  NomeCompleto?: Prisma.SortOrder
-  Email?: Prisma.SortOrder
-  SenhaHash?: Prisma.SortOrder
-  DataCadastro?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  password?: Prisma.SortOrder
+  date?: Prisma.SortOrder
 }
 
 export type UsuarioMinOrderByAggregateInput = {
   ID_Usuario?: Prisma.SortOrder
-  NomeCompleto?: Prisma.SortOrder
-  Email?: Prisma.SortOrder
-  SenhaHash?: Prisma.SortOrder
-  DataCadastro?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  password?: Prisma.SortOrder
+  date?: Prisma.SortOrder
 }
 
 export type UsuarioSumOrderByAggregateInput = {
@@ -494,10 +494,10 @@ export type UsuarioUpdateOneRequiredWithoutAssinaturasNestedInput = {
 }
 
 export type UsuarioCreateWithoutCursosInput = {
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
   matriculas?: Prisma.MatriculaCreateNestedManyWithoutUsuarioInput
   progressos?: Prisma.ProgressoAulaCreateNestedManyWithoutUsuarioInput
   avaliacoes?: Prisma.AvaliacaoCreateNestedManyWithoutUsuarioInput
@@ -507,10 +507,10 @@ export type UsuarioCreateWithoutCursosInput = {
 
 export type UsuarioUncheckedCreateWithoutCursosInput = {
   ID_Usuario?: number
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
   matriculas?: Prisma.MatriculaUncheckedCreateNestedManyWithoutUsuarioInput
   progressos?: Prisma.ProgressoAulaUncheckedCreateNestedManyWithoutUsuarioInput
   avaliacoes?: Prisma.AvaliacaoUncheckedCreateNestedManyWithoutUsuarioInput
@@ -535,10 +535,10 @@ export type UsuarioUpdateToOneWithWhereWithoutCursosInput = {
 }
 
 export type UsuarioUpdateWithoutCursosInput = {
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   matriculas?: Prisma.MatriculaUpdateManyWithoutUsuarioNestedInput
   progressos?: Prisma.ProgressoAulaUpdateManyWithoutUsuarioNestedInput
   avaliacoes?: Prisma.AvaliacaoUpdateManyWithoutUsuarioNestedInput
@@ -548,10 +548,10 @@ export type UsuarioUpdateWithoutCursosInput = {
 
 export type UsuarioUncheckedUpdateWithoutCursosInput = {
   ID_Usuario?: Prisma.IntFieldUpdateOperationsInput | number
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   matriculas?: Prisma.MatriculaUncheckedUpdateManyWithoutUsuarioNestedInput
   progressos?: Prisma.ProgressoAulaUncheckedUpdateManyWithoutUsuarioNestedInput
   avaliacoes?: Prisma.AvaliacaoUncheckedUpdateManyWithoutUsuarioNestedInput
@@ -560,10 +560,10 @@ export type UsuarioUncheckedUpdateWithoutCursosInput = {
 }
 
 export type UsuarioCreateWithoutMatriculasInput = {
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
   cursos?: Prisma.CursoCreateNestedManyWithoutInstrutorInput
   progressos?: Prisma.ProgressoAulaCreateNestedManyWithoutUsuarioInput
   avaliacoes?: Prisma.AvaliacaoCreateNestedManyWithoutUsuarioInput
@@ -573,10 +573,10 @@ export type UsuarioCreateWithoutMatriculasInput = {
 
 export type UsuarioUncheckedCreateWithoutMatriculasInput = {
   ID_Usuario?: number
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
   cursos?: Prisma.CursoUncheckedCreateNestedManyWithoutInstrutorInput
   progressos?: Prisma.ProgressoAulaUncheckedCreateNestedManyWithoutUsuarioInput
   avaliacoes?: Prisma.AvaliacaoUncheckedCreateNestedManyWithoutUsuarioInput
@@ -601,10 +601,10 @@ export type UsuarioUpdateToOneWithWhereWithoutMatriculasInput = {
 }
 
 export type UsuarioUpdateWithoutMatriculasInput = {
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cursos?: Prisma.CursoUpdateManyWithoutInstrutorNestedInput
   progressos?: Prisma.ProgressoAulaUpdateManyWithoutUsuarioNestedInput
   avaliacoes?: Prisma.AvaliacaoUpdateManyWithoutUsuarioNestedInput
@@ -614,10 +614,10 @@ export type UsuarioUpdateWithoutMatriculasInput = {
 
 export type UsuarioUncheckedUpdateWithoutMatriculasInput = {
   ID_Usuario?: Prisma.IntFieldUpdateOperationsInput | number
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cursos?: Prisma.CursoUncheckedUpdateManyWithoutInstrutorNestedInput
   progressos?: Prisma.ProgressoAulaUncheckedUpdateManyWithoutUsuarioNestedInput
   avaliacoes?: Prisma.AvaliacaoUncheckedUpdateManyWithoutUsuarioNestedInput
@@ -626,10 +626,10 @@ export type UsuarioUncheckedUpdateWithoutMatriculasInput = {
 }
 
 export type UsuarioCreateWithoutProgressosInput = {
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
   cursos?: Prisma.CursoCreateNestedManyWithoutInstrutorInput
   matriculas?: Prisma.MatriculaCreateNestedManyWithoutUsuarioInput
   avaliacoes?: Prisma.AvaliacaoCreateNestedManyWithoutUsuarioInput
@@ -639,10 +639,10 @@ export type UsuarioCreateWithoutProgressosInput = {
 
 export type UsuarioUncheckedCreateWithoutProgressosInput = {
   ID_Usuario?: number
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
   cursos?: Prisma.CursoUncheckedCreateNestedManyWithoutInstrutorInput
   matriculas?: Prisma.MatriculaUncheckedCreateNestedManyWithoutUsuarioInput
   avaliacoes?: Prisma.AvaliacaoUncheckedCreateNestedManyWithoutUsuarioInput
@@ -667,10 +667,10 @@ export type UsuarioUpdateToOneWithWhereWithoutProgressosInput = {
 }
 
 export type UsuarioUpdateWithoutProgressosInput = {
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cursos?: Prisma.CursoUpdateManyWithoutInstrutorNestedInput
   matriculas?: Prisma.MatriculaUpdateManyWithoutUsuarioNestedInput
   avaliacoes?: Prisma.AvaliacaoUpdateManyWithoutUsuarioNestedInput
@@ -680,10 +680,10 @@ export type UsuarioUpdateWithoutProgressosInput = {
 
 export type UsuarioUncheckedUpdateWithoutProgressosInput = {
   ID_Usuario?: Prisma.IntFieldUpdateOperationsInput | number
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cursos?: Prisma.CursoUncheckedUpdateManyWithoutInstrutorNestedInput
   matriculas?: Prisma.MatriculaUncheckedUpdateManyWithoutUsuarioNestedInput
   avaliacoes?: Prisma.AvaliacaoUncheckedUpdateManyWithoutUsuarioNestedInput
@@ -692,10 +692,10 @@ export type UsuarioUncheckedUpdateWithoutProgressosInput = {
 }
 
 export type UsuarioCreateWithoutAvaliacoesInput = {
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
   cursos?: Prisma.CursoCreateNestedManyWithoutInstrutorInput
   matriculas?: Prisma.MatriculaCreateNestedManyWithoutUsuarioInput
   progressos?: Prisma.ProgressoAulaCreateNestedManyWithoutUsuarioInput
@@ -705,10 +705,10 @@ export type UsuarioCreateWithoutAvaliacoesInput = {
 
 export type UsuarioUncheckedCreateWithoutAvaliacoesInput = {
   ID_Usuario?: number
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
   cursos?: Prisma.CursoUncheckedCreateNestedManyWithoutInstrutorInput
   matriculas?: Prisma.MatriculaUncheckedCreateNestedManyWithoutUsuarioInput
   progressos?: Prisma.ProgressoAulaUncheckedCreateNestedManyWithoutUsuarioInput
@@ -733,10 +733,10 @@ export type UsuarioUpdateToOneWithWhereWithoutAvaliacoesInput = {
 }
 
 export type UsuarioUpdateWithoutAvaliacoesInput = {
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cursos?: Prisma.CursoUpdateManyWithoutInstrutorNestedInput
   matriculas?: Prisma.MatriculaUpdateManyWithoutUsuarioNestedInput
   progressos?: Prisma.ProgressoAulaUpdateManyWithoutUsuarioNestedInput
@@ -746,10 +746,10 @@ export type UsuarioUpdateWithoutAvaliacoesInput = {
 
 export type UsuarioUncheckedUpdateWithoutAvaliacoesInput = {
   ID_Usuario?: Prisma.IntFieldUpdateOperationsInput | number
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cursos?: Prisma.CursoUncheckedUpdateManyWithoutInstrutorNestedInput
   matriculas?: Prisma.MatriculaUncheckedUpdateManyWithoutUsuarioNestedInput
   progressos?: Prisma.ProgressoAulaUncheckedUpdateManyWithoutUsuarioNestedInput
@@ -758,10 +758,10 @@ export type UsuarioUncheckedUpdateWithoutAvaliacoesInput = {
 }
 
 export type UsuarioCreateWithoutCertificadosInput = {
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
   cursos?: Prisma.CursoCreateNestedManyWithoutInstrutorInput
   matriculas?: Prisma.MatriculaCreateNestedManyWithoutUsuarioInput
   progressos?: Prisma.ProgressoAulaCreateNestedManyWithoutUsuarioInput
@@ -771,10 +771,10 @@ export type UsuarioCreateWithoutCertificadosInput = {
 
 export type UsuarioUncheckedCreateWithoutCertificadosInput = {
   ID_Usuario?: number
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
   cursos?: Prisma.CursoUncheckedCreateNestedManyWithoutInstrutorInput
   matriculas?: Prisma.MatriculaUncheckedCreateNestedManyWithoutUsuarioInput
   progressos?: Prisma.ProgressoAulaUncheckedCreateNestedManyWithoutUsuarioInput
@@ -799,10 +799,10 @@ export type UsuarioUpdateToOneWithWhereWithoutCertificadosInput = {
 }
 
 export type UsuarioUpdateWithoutCertificadosInput = {
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cursos?: Prisma.CursoUpdateManyWithoutInstrutorNestedInput
   matriculas?: Prisma.MatriculaUpdateManyWithoutUsuarioNestedInput
   progressos?: Prisma.ProgressoAulaUpdateManyWithoutUsuarioNestedInput
@@ -812,10 +812,10 @@ export type UsuarioUpdateWithoutCertificadosInput = {
 
 export type UsuarioUncheckedUpdateWithoutCertificadosInput = {
   ID_Usuario?: Prisma.IntFieldUpdateOperationsInput | number
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cursos?: Prisma.CursoUncheckedUpdateManyWithoutInstrutorNestedInput
   matriculas?: Prisma.MatriculaUncheckedUpdateManyWithoutUsuarioNestedInput
   progressos?: Prisma.ProgressoAulaUncheckedUpdateManyWithoutUsuarioNestedInput
@@ -824,10 +824,10 @@ export type UsuarioUncheckedUpdateWithoutCertificadosInput = {
 }
 
 export type UsuarioCreateWithoutAssinaturasInput = {
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
   cursos?: Prisma.CursoCreateNestedManyWithoutInstrutorInput
   matriculas?: Prisma.MatriculaCreateNestedManyWithoutUsuarioInput
   progressos?: Prisma.ProgressoAulaCreateNestedManyWithoutUsuarioInput
@@ -837,10 +837,10 @@ export type UsuarioCreateWithoutAssinaturasInput = {
 
 export type UsuarioUncheckedCreateWithoutAssinaturasInput = {
   ID_Usuario?: number
-  NomeCompleto: string
-  Email: string
-  SenhaHash: string
-  DataCadastro?: Date | string
+  name: string
+  email: string
+  password: string
+  date?: Date | string
   cursos?: Prisma.CursoUncheckedCreateNestedManyWithoutInstrutorInput
   matriculas?: Prisma.MatriculaUncheckedCreateNestedManyWithoutUsuarioInput
   progressos?: Prisma.ProgressoAulaUncheckedCreateNestedManyWithoutUsuarioInput
@@ -865,10 +865,10 @@ export type UsuarioUpdateToOneWithWhereWithoutAssinaturasInput = {
 }
 
 export type UsuarioUpdateWithoutAssinaturasInput = {
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cursos?: Prisma.CursoUpdateManyWithoutInstrutorNestedInput
   matriculas?: Prisma.MatriculaUpdateManyWithoutUsuarioNestedInput
   progressos?: Prisma.ProgressoAulaUpdateManyWithoutUsuarioNestedInput
@@ -878,10 +878,10 @@ export type UsuarioUpdateWithoutAssinaturasInput = {
 
 export type UsuarioUncheckedUpdateWithoutAssinaturasInput = {
   ID_Usuario?: Prisma.IntFieldUpdateOperationsInput | number
-  NomeCompleto?: Prisma.StringFieldUpdateOperationsInput | string
-  Email?: Prisma.StringFieldUpdateOperationsInput | string
-  SenhaHash?: Prisma.StringFieldUpdateOperationsInput | string
-  DataCadastro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cursos?: Prisma.CursoUncheckedUpdateManyWithoutInstrutorNestedInput
   matriculas?: Prisma.MatriculaUncheckedUpdateManyWithoutUsuarioNestedInput
   progressos?: Prisma.ProgressoAulaUncheckedUpdateManyWithoutUsuarioNestedInput
@@ -967,10 +967,10 @@ export type UsuarioCountOutputTypeCountAssinaturasArgs<ExtArgs extends runtime.T
 
 export type UsuarioSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   ID_Usuario?: boolean
-  NomeCompleto?: boolean
-  Email?: boolean
-  SenhaHash?: boolean
-  DataCadastro?: boolean
+  name?: boolean
+  email?: boolean
+  password?: boolean
+  date?: boolean
   cursos?: boolean | Prisma.Usuario$cursosArgs<ExtArgs>
   matriculas?: boolean | Prisma.Usuario$matriculasArgs<ExtArgs>
   progressos?: boolean | Prisma.Usuario$progressosArgs<ExtArgs>
@@ -982,29 +982,29 @@ export type UsuarioSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 
 export type UsuarioSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   ID_Usuario?: boolean
-  NomeCompleto?: boolean
-  Email?: boolean
-  SenhaHash?: boolean
-  DataCadastro?: boolean
+  name?: boolean
+  email?: boolean
+  password?: boolean
+  date?: boolean
 }, ExtArgs["result"]["usuario"]>
 
 export type UsuarioSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   ID_Usuario?: boolean
-  NomeCompleto?: boolean
-  Email?: boolean
-  SenhaHash?: boolean
-  DataCadastro?: boolean
+  name?: boolean
+  email?: boolean
+  password?: boolean
+  date?: boolean
 }, ExtArgs["result"]["usuario"]>
 
 export type UsuarioSelectScalar = {
   ID_Usuario?: boolean
-  NomeCompleto?: boolean
-  Email?: boolean
-  SenhaHash?: boolean
-  DataCadastro?: boolean
+  name?: boolean
+  email?: boolean
+  password?: boolean
+  date?: boolean
 }
 
-export type UsuarioOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"ID_Usuario" | "NomeCompleto" | "Email" | "SenhaHash" | "DataCadastro", ExtArgs["result"]["usuario"]>
+export type UsuarioOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"ID_Usuario" | "name" | "email" | "password" | "date", ExtArgs["result"]["usuario"]>
 export type UsuarioInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cursos?: boolean | Prisma.Usuario$cursosArgs<ExtArgs>
   matriculas?: boolean | Prisma.Usuario$matriculasArgs<ExtArgs>
@@ -1029,10 +1029,10 @@ export type $UsuarioPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     ID_Usuario: number
-    NomeCompleto: string
-    Email: string
-    SenhaHash: string
-    DataCadastro: Date
+    name: string
+    email: string
+    password: string
+    date: Date
   }, ExtArgs["result"]["usuario"]>
   composites: {}
 }
@@ -1463,10 +1463,10 @@ export interface Prisma__UsuarioClient<T, Null = never, ExtArgs extends runtime.
  */
 export interface UsuarioFieldRefs {
   readonly ID_Usuario: Prisma.FieldRef<"Usuario", 'Int'>
-  readonly NomeCompleto: Prisma.FieldRef<"Usuario", 'String'>
-  readonly Email: Prisma.FieldRef<"Usuario", 'String'>
-  readonly SenhaHash: Prisma.FieldRef<"Usuario", 'String'>
-  readonly DataCadastro: Prisma.FieldRef<"Usuario", 'DateTime'>
+  readonly name: Prisma.FieldRef<"Usuario", 'String'>
+  readonly email: Prisma.FieldRef<"Usuario", 'String'>
+  readonly password: Prisma.FieldRef<"Usuario", 'String'>
+  readonly date: Prisma.FieldRef<"Usuario", 'DateTime'>
 }
     
 

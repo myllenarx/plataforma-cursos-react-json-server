@@ -19,10 +19,10 @@ datasource db {
 
 model Usuario {
   ID_Usuario   Int      @id @default(autoincrement())
-  NomeCompleto String
-  Email        String   @unique
-  SenhaHash    String
-  DataCadastro DateTime @default(now())
+  name String
+  email        String   @unique
+  password    String
+  date DateTime @default(now())
 
   cursos       Curso[]
   matriculas   Matricula[]
