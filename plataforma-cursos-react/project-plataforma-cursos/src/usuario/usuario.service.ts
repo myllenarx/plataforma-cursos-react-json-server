@@ -7,14 +7,11 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 
 @Injectable()
 export class UsuarioService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createUsuarioDto: CreateUsuarioDto) {
     const salt = await bcrypt.genSalt();
-    const hash = await bcrypt.hash(
-      createUsuarioDto.password,
-      salt,
-    );
+    const hash = await bcrypt.hash(createUsuarioDto.password, salt);
 
     return this.prisma.usuario.create({
       data: {
@@ -44,10 +41,7 @@ export class UsuarioService {
     });
   }
 
-  update(
-    id: number,
-    updateUsuarioDto: UpdateUsuarioDto,
-  ) {
+  update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
     return this.prisma.usuario.update({
       where: {
         ID_Usuario: id,
