@@ -3,10 +3,12 @@ import { UsuarioService } from '../usuario/usuario.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { PerfilUsuario } from '../generated/prisma/enums';
 
 export interface JwtPayload {
   sub: number;
   email: string;
+  perfil: PerfilUsuario;
 }
 
 @Injectable()
@@ -32,6 +34,7 @@ export class AuthService {
     const payload: JwtPayload = {
       sub: usuario.ID_Usuario,
       email: usuario.email,
+      perfil: usuario.perfil,
     };
 
     return {

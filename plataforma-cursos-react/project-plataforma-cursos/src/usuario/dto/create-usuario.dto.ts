@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
-export class CreateUsuarioDto {
+import { PerfilUsuario } from '../../generated/prisma/enums'; export class CreateUsuarioDto {
   @ApiProperty({
     example: 'joao@email.com',
     description: 'O email do usuário',
@@ -19,4 +19,10 @@ export class CreateUsuarioDto {
   @IsString()
   @MinLength(6)
   password!: string;
+  @ApiProperty({
+    enum: PerfilUsuario,
+    example: PerfilUsuario.ALUNO,
+    description: 'Perfil de acesso do usuário',
+  })
+  perfil?: PerfilUsuario;
 }

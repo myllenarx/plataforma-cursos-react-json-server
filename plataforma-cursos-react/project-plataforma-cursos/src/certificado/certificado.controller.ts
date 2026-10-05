@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -15,42 +16,59 @@ import { CertificadoService } from './certificado.service';
 import { CreateCertificadoDto } from './dto/create-certificado.dto';
 import { UpdateCertificadoDto } from './dto/update-certificado.dto';
 
+import { PerfilUsuario } from '../generated/prisma/enums';
+import { Roles } from '../auth/roles/roles.decorator';
+import { RolesGuard } from '../auth/roles/roles.guard';
+
+type RequestAutenticada = {
+  user: {
+    usuarioId: number;
+    email: string;
+    perfil: PerfilUsuario;
+  };
+};
+
 @ApiTags('certificados')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
 @Controller('certificados')
 export class CertificadoController {
-  constructor(private readonly certificadoService: CertificadoService) {}
+  constructor(private readonly certificadoService: CertificadoService) { }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ADMIN)
   @Post()
-  @ApiOperation({ summary: 'Emitir um novo certificado' })
-  create(@Body() createCertificadoDto: CreateCertificadoDto) {
-    return this.certificadoService.create(createCertificadoDto);
+  create(@Body() dto: CreateCertificadoDto) {
+    return this.certificadoService.create(dto);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ALUNO, PerfilUsuario.ADMIN)
   @Get()
-  @ApiOperation({ summary: 'Listar todos os certificados' })
-  findAll() {
-    return this.certificadoService.findAll();
+  findAll(@Req() req: RequestAutenticada) {
+    return this.certificadoService.findAll(req.user);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ALUNO, PerfilUsuario.ADMIN)
   @Get(':id')
-  @ApiOperation({ summary: 'Buscar um certificado pelo ID' })
-  findOne(@Param('id') id: string) {
-    return this.certificadoService.findOne(+id);
-  }
-
-  @Patch(':id')
-  @ApiOperation({ summary: 'Atualizar um certificado' })
-  update(
+  findOne(
     @Param('id') id: string,
-    @Body() updateCertificadoDto: UpdateCertificadoDto,
+    @Req() req: RequestAutenticada,
   ) {
-    return this.certificadoService.update(+id, updateCertificadoDto);
+    return this.certificadoService.findOne(+id, req.user);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ADMIN)
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: UpdateCertificadoDto) {
+    return this.certificadoService.update(+id, dto);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ADMIN)
   @Delete(':id')
-  @ApiOperation({ summary: 'Remover um certificado' })
   remove(@Param('id') id: string) {
     return this.certificadoService.remove(+id);
   }

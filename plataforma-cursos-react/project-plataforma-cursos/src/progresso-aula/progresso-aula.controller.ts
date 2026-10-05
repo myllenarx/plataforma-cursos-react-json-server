@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -15,50 +16,77 @@ import { ProgressoAulaService } from './progresso-aula.service';
 import { CreateProgressoAulaDto } from './dto/create-progresso-aula.dto';
 import { UpdateProgressoAulaDto } from './dto/update-progresso-aula.dto';
 
+import { PerfilUsuario } from '../generated/prisma/enums';
+import { Roles } from '../auth/roles/roles.decorator';
+import { RolesGuard } from '../auth/roles/roles.guard';
+
+type RequestAutenticada = {
+  user: {
+    usuarioId: number;
+    email: string;
+    perfil: PerfilUsuario;
+  };
+};
+
 @ApiTags('progressos')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
 @Controller('progressos')
 export class ProgressoAulaController {
-  constructor(private readonly progressoAulaService: ProgressoAulaService) {}
+  constructor(private readonly progressoAulaService: ProgressoAulaService) { }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ALUNO, PerfilUsuario.ADMIN)
   @Post()
-  @ApiOperation({ summary: 'Registrar o progresso de uma aula' })
-  create(@Body() createProgressoAulaDto: CreateProgressoAulaDto) {
-    return this.progressoAulaService.create(createProgressoAulaDto);
+  create(
+    @Body() dto: CreateProgressoAulaDto,
+    @Req() req: RequestAutenticada,
+  ) {
+    return this.progressoAulaService.create(dto, req.user);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ALUNO, PerfilUsuario.ADMIN)
   @Get()
-  @ApiOperation({ summary: 'Listar todos os progressos' })
-  findAll() {
-    return this.progressoAulaService.findAll();
+  findAll(@Req() req: RequestAutenticada) {
+    return this.progressoAulaService.findAll(req.user);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ALUNO, PerfilUsuario.ADMIN)
   @Get(':idUsuario/:idAula')
-  @ApiOperation({ summary: 'Buscar o progresso de uma aula' })
   findOne(
     @Param('idUsuario') idUsuario: string,
     @Param('idAula') idAula: string,
+    @Req() req: RequestAutenticada,
   ) {
-    return this.progressoAulaService.findOne(+idUsuario, +idAula);
+    return this.progressoAulaService.findOne(
+      +idUsuario,
+      +idAula,
+      req.user,
+    );
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ALUNO, PerfilUsuario.ADMIN)
   @Patch(':idUsuario/:idAula')
-  @ApiOperation({ summary: 'Atualizar o progresso de uma aula' })
   update(
     @Param('idUsuario') idUsuario: string,
     @Param('idAula') idAula: string,
-    @Body() updateProgressoAulaDto: UpdateProgressoAulaDto,
+    @Body() dto: UpdateProgressoAulaDto,
+    @Req() req: RequestAutenticada,
   ) {
     return this.progressoAulaService.update(
       +idUsuario,
       +idAula,
-      updateProgressoAulaDto,
+      dto,
+      req.user,
     );
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ADMIN)
   @Delete(':idUsuario/:idAula')
-  @ApiOperation({ summary: 'Remover o progresso de uma aula' })
   remove(
     @Param('idUsuario') idUsuario: string,
     @Param('idAula') idAula: string,

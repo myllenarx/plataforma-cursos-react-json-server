@@ -1,46 +1,38 @@
 import { useEffect, useState } from "react"
 
-import { getUsuarios } from "../services/usuariosService"
-import { getCursos } from "../services/cursosService"
+import {
+  getUsuarios,
+  type Usuario,
+} from "../services/usuariosService"
+
+import {
+  getCursos,
+  type Curso,
+  type Aula,
+} from "../services/cursosService"
 
 import {
   getMatriculas,
   createMatricula,
   updateMatricula,
   deleteMatricula,
-  type Matricula
+  type Matricula,
 } from "../services/matriculasService"
 
 import {
   getProgressos,
   createProgresso,
   deleteProgresso,
-  type Progresso
+  type Progresso,
 } from "../services/progressosService"
 
-type Usuario = {
-  id: string
-  nome: string
-}
-
-type Aula = {
-  id: string
-  titulo: string
-}
-
-type Modulo = {
-  id: string
-  titulo: string
-  aulas: Aula[]
-}
-
-type Curso = {
-  id: string
-  nome: string
-  modulos?: Modulo[]
-}
+import { getUsuarioLogado } from "../services/auth"
 
 export default function Matriculas() {
+  const usuarioLogado = getUsuarioLogado()
+  const perfil = usuarioLogado?.perfil
+  const ehAdmin = perfil === "ADMIN"
+
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
   const [cursos, setCursos] = useState<Curso[]>([])
   const [matriculas, setMatriculas] = useState<Matricula[]>([])
@@ -48,153 +40,54 @@ export default function Matriculas() {
 
   const [idUsuario, setIdUsuario] = useState("")
   const [idCurso, setIdCurso] = useState("")
-
   const [loading, setLoading] = useState(true)
 
   const [matriculaAberta, setMatriculaAberta] =
     useState<string | null>(null)
 
-  function carregarDados() {
-    
-    Promise.all([
-      getUsuarios(),
-      getCursos(),
-      getMatriculas(),
-      getProgressos()
-    ])
-      .then(
-        ([
-          usuariosResponse,
-          cursosResponse,
-          matriculasResponse,
-          progressosResponse
-        ]) => {
-          setUsuarios(usuariosResponse.data)
-          setCursos(cursosResponse.data)
-          setMatriculas(matriculasResponse.data)
-          setProgressos(progressosResponse.data)
-        }
+  async function carregarDados() {
+    try {
+      const [
+        cursosResponse,
+        matriculasResponse,
+        progressosResponse,
+      ] = await Promise.all([
+        getCursos(),
+        getMatriculas(),
+        getProgressos(),
+      ])
+
+      setCursos(cursosResponse.data)
+      setMatriculas(matriculasResponse.data)
+      setProgressos(progressosResponse.data)
+
+      if (ehAdmin) {
+        const usuariosResponse = await getUsuarios()
+        setUsuarios(usuariosResponse.data)
+      }
+    } catch (error) {
+      console.error(
+        "Erro ao carregar matrículas:",
+        error
       )
-      .catch(() => {
-        alert(
-          "Não foi possível carregar os dados das matrículas."
-        )
-      })
-      .finally(() => {
-        setLoading(false)
-      })
+
+      alert(
+        "Não foi possível carregar os dados das matrículas."
+      )
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
     carregarDados()
   }, [])
 
-  // =========================================================
-  // MATRÍCULA
-  // =========================================================
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-
-    if (!idUsuario || !idCurso) {
-      alert("Selecione um usuário e um curso.")
-      return
-    }
-
-    const matriculaExistente = matriculas.some(
-      (matricula) =>
-        String(matricula.idUsuario) ===
-          String(idUsuario) &&
-        String(matricula.idCurso) ===
-          String(idCurso)
-    )
-
-    if (matriculaExistente) {
-      alert(
-        "Este usuário já está matriculado neste curso."
-      )
-      return
-    }
-
-    createMatricula({
-      idUsuario,
-      idCurso,
-      dataMatricula:
-        new Date().toLocaleDateString("pt-BR"),
-      dataConclusao: null
-    })
-      .then(() => {
-        setIdUsuario("")
-        setIdCurso("")
-        carregarDados()
-      })
-      .catch(() => {
-        alert("Não foi possível realizar a matrícula.")
-      })
-  }
-
-  async function handleDelete(
-    matricula: Matricula
-  ) {
-    if (
-      !window.confirm(
-        "Deseja realmente cancelar esta matrícula? O progresso do aluno neste curso também será removido."
-      )
-    ) {
-      return
-    }
-
-    try {
-      const progressosDaMatricula =
-        progressos.filter(
-          (progresso) =>
-            String(progresso.idUsuario) ===
-              String(matricula.idUsuario) &&
-            String(progresso.idCurso) ===
-              String(matricula.idCurso)
-        )
-
-      await Promise.all(
-        progressosDaMatricula.map((progresso) =>
-          deleteProgresso(progresso.id)
-        )
-      )
-
-      await deleteMatricula(matricula.id)
-
-      setProgressos((atuais) =>
-        atuais.filter(
-          (progresso) =>
-            !(
-              String(progresso.idUsuario) ===
-                String(matricula.idUsuario) &&
-              String(progresso.idCurso) ===
-                String(matricula.idCurso)
-            )
-        )
-      )
-
-      setMatriculas((atuais) =>
-        atuais.filter(
-          (item) => item.id !== matricula.id
-        )
-      )
-
-      if (matriculaAberta === matricula.id) {
-        setMatriculaAberta(null)
-      }
-    } catch {
-      alert(
-        "Não foi possível cancelar a matrícula."
-      )
-    }
-  }
-
-  // =========================================================
-  // BUSCAS
-  // =========================================================
-
   function buscarUsuario(id: string) {
+    if (!ehAdmin) {
+      return usuarioLogado?.email || "Aluno"
+    }
+
     return (
       usuarios.find(
         (usuario) =>
@@ -210,38 +103,54 @@ export default function Matriculas() {
     )
   }
 
-  // =========================================================
-  // PROGRESSO
-  // =========================================================
+  function obterTodasAulas(curso?: Curso) {
+    if (!curso) {
+      return []
+    }
 
-  function obterTodasAulas(curso: Curso) {
-    return (curso.modulos || []).flatMap(
-      (modulo) => modulo.aulas || []
+    return curso.modulos.flatMap(
+      (modulo) => modulo.aulas
+    )
+  }
+
+  function idsAulasDoCurso(cursoId: string) {
+    const curso = buscarCurso(cursoId)
+
+    return new Set(
+      obterTodasAulas(curso).map(
+        (aula) => String(aula.id)
+      )
+    )
+  }
+
+  function progressoPertenceMatricula(
+    progresso: Progresso,
+    matricula: Matricula
+  ) {
+    if (
+      String(progresso.idUsuario) !==
+      String(matricula.idUsuario)
+    ) {
+      return false
+    }
+
+    const idsAulas =
+      idsAulasDoCurso(matricula.idCurso)
+
+    return idsAulas.has(
+      String(progresso.idAula)
     )
   }
 
   function obterProgressosMatricula(
-    matricula: Matricula
-  ) {
-    return progressos.filter(
-      (progresso) =>
-        String(progresso.idUsuario) ===
-          String(matricula.idUsuario) &&
-        String(progresso.idCurso) ===
-          String(matricula.idCurso)
-    )
-  }
-
-  function aulaConcluida(
     matricula: Matricula,
-    aulaId: string
+    lista = progressos
   ) {
-    return obterProgressosMatricula(
-      matricula
-    ).some(
-      (progresso) =>
-        String(progresso.idAula) ===
-        String(aulaId)
+    return lista.filter((progresso) =>
+      progressoPertenceMatricula(
+        progresso,
+        matricula
+      )
     )
   }
 
@@ -252,25 +161,14 @@ export default function Matriculas() {
       matricula.idCurso
     )
 
-    if (!curso) {
-      return {
-        total: 0,
-        concluidas: 0,
-        percentual: 0
-      }
-    }
-
     const aulas = obterTodasAulas(curso)
 
     const concluidas =
       obterProgressosMatricula(
         matricula
-      ).filter((progresso) =>
-        aulas.some(
-          (aula) =>
-            String(aula.id) ===
-            String(progresso.idAula)
-        )
+      ).filter(
+        (progresso) =>
+          progresso.status === "CONCLUIDO"
       ).length
 
     const percentual =
@@ -283,7 +181,124 @@ export default function Matriculas() {
     return {
       total: aulas.length,
       concluidas,
-      percentual
+      percentual,
+    }
+  }
+
+  function aulaConcluida(
+    matricula: Matricula,
+    aulaId: string
+  ) {
+    return obterProgressosMatricula(
+      matricula
+    ).some(
+      (progresso) =>
+        String(progresso.idAula) ===
+          String(aulaId) &&
+        progresso.status === "CONCLUIDO"
+    )
+  }
+
+  async function handleSubmit(
+    e: React.FormEvent
+  ) {
+    e.preventDefault()
+
+    const usuarioMatricula =
+      ehAdmin
+        ? idUsuario
+        : String(usuarioLogado?.sub ?? "")
+
+    if (!usuarioMatricula || !idCurso) {
+      alert(
+        ehAdmin
+          ? "Selecione um usuário e um curso."
+          : "Selecione um curso."
+      )
+      return
+    }
+
+    const existente = matriculas.some(
+      (matricula) =>
+        String(matricula.idUsuario) ===
+          String(usuarioMatricula) &&
+        String(matricula.idCurso) ===
+          String(idCurso)
+    )
+
+    if (existente) {
+      alert(
+        "Este usuário já está matriculado neste curso."
+      )
+      return
+    }
+
+    try {
+      await createMatricula({
+        idUsuario: usuarioMatricula,
+        idCurso,
+      })
+
+      setIdUsuario("")
+      setIdCurso("")
+
+      await carregarDados()
+    } catch (error) {
+      console.error(
+        "Erro ao realizar matrícula:",
+        error
+      )
+
+      alert(
+        "Não foi possível realizar a matrícula."
+      )
+    }
+  }
+
+  async function handleDelete(
+    matricula: Matricula
+  ) {
+    if (!ehAdmin) {
+      return
+    }
+
+    if (
+      !window.confirm(
+        "Deseja realmente cancelar esta matrícula? O progresso deste aluno no curso também será removido."
+      )
+    ) {
+      return
+    }
+
+    try {
+      const progressosDaMatricula =
+        obterProgressosMatricula(matricula)
+
+      for (const progresso of progressosDaMatricula) {
+        await deleteProgresso(
+          progresso.idUsuario,
+          progresso.idAula
+        )
+      }
+
+      await deleteMatricula(matricula.id)
+
+      if (
+        matriculaAberta === matricula.id
+      ) {
+        setMatriculaAberta(null)
+      }
+
+      await carregarDados()
+    } catch (error) {
+      console.error(
+        "Erro ao cancelar matrícula:",
+        error
+      )
+
+      alert(
+        "Não foi possível cancelar a matrícula."
+      )
     }
   }
 
@@ -291,6 +306,10 @@ export default function Matriculas() {
     matricula: Matricula,
     novosProgressos: Progresso[]
   ) {
+    if (!ehAdmin) {
+      return
+    }
+
     const curso = buscarCurso(
       matricula.idCurso
     )
@@ -304,15 +323,11 @@ export default function Matriculas() {
     const concluidas =
       novosProgressos.filter(
         (progresso) =>
-          String(progresso.idUsuario) ===
-            String(matricula.idUsuario) &&
-          String(progresso.idCurso) ===
-            String(matricula.idCurso) &&
-          aulas.some(
-            (aula) =>
-              String(aula.id) ===
-              String(progresso.idAula)
-          )
+          progressoPertenceMatricula(
+            progresso,
+            matricula
+          ) &&
+          progresso.status === "CONCLUIDO"
       ).length
 
     const terminou =
@@ -321,7 +336,7 @@ export default function Matriculas() {
 
     const novaDataConclusao = terminou
       ? matricula.dataConclusao ||
-        new Date().toLocaleDateString("pt-BR")
+        new Date().toISOString()
       : null
 
     if (
@@ -331,7 +346,7 @@ export default function Matriculas() {
       await updateMatricula(
         matricula.id,
         {
-          dataConclusao: novaDataConclusao
+          dataConclusao: novaDataConclusao,
         }
       )
 
@@ -341,7 +356,7 @@ export default function Matriculas() {
             ? {
                 ...item,
                 dataConclusao:
-                  novaDataConclusao
+                  novaDataConclusao,
               }
             : item
         )
@@ -357,8 +372,6 @@ export default function Matriculas() {
       (progresso) =>
         String(progresso.idUsuario) ===
           String(matricula.idUsuario) &&
-        String(progresso.idCurso) ===
-          String(matricula.idCurso) &&
         String(progresso.idAula) ===
           String(aula.id)
     )
@@ -367,32 +380,48 @@ export default function Matriculas() {
       let novosProgressos: Progresso[]
 
       if (existente) {
+        if (!ehAdmin) {
+          alert(
+            "A conclusão registrada não pode ser removida pelo aluno."
+          )
+          return
+        }
+
         await deleteProgresso(
-          existente.id
+          existente.idUsuario,
+          existente.idAula
         )
 
         novosProgressos =
           progressos.filter(
             (progresso) =>
-              progresso.id !== existente.id
+              !(
+                String(
+                  progresso.idUsuario
+                ) ===
+                  String(
+                    existente.idUsuario
+                  ) &&
+                String(
+                  progresso.idAula
+                ) ===
+                  String(existente.idAula)
+              )
           )
       } else {
         const response =
           await createProgresso({
             idUsuario:
               String(matricula.idUsuario),
-            idCurso:
-              String(matricula.idCurso),
             idAula: String(aula.id),
             dataConclusao:
-              new Date().toLocaleDateString(
-                "pt-BR"
-              )
+              new Date().toISOString(),
+            status: "CONCLUIDO",
           })
 
         novosProgressos = [
           ...progressos,
-          response.data
+          response.data,
         ]
       }
 
@@ -402,70 +431,91 @@ export default function Matriculas() {
         matricula,
         novosProgressos
       )
-    } catch {
+    } catch (error) {
+      console.error(
+        "Erro ao atualizar progresso:",
+        error
+      )
+
       alert(
         "Não foi possível atualizar o progresso desta aula."
       )
     }
   }
 
-  // =========================================================
-  // INTERFACE
-  // =========================================================
+  function formatarData(
+    data?: string | null
+  ) {
+    if (!data) {
+      return "-"
+    }
+
+    const valor = new Date(data)
+
+    if (Number.isNaN(valor.getTime())) {
+      return data
+    }
+
+    return valor.toLocaleDateString(
+      "pt-BR"
+    )
+  }
 
   return (
     <div className="container mt-4 crud-page">
-
       <div className="crud-page-header">
         <h2>Matrículas</h2>
 
         <p>
-          Gerencie matrículas e acompanhe o
-          progresso dos alunos nos cursos.
+          {ehAdmin
+            ? "Gerencie matrículas e acompanhe o progresso dos alunos nos cursos."
+            : "Acompanhe seus cursos e registre seu progresso nas aulas."}
         </p>
       </div>
 
       <div className="crud-two-column">
-
-        {/* FORMULÁRIO */}
         <div className="card crud-form-card">
-
-          <h5>Nova matrícula</h5>
+          <h5>
+            {ehAdmin
+              ? "Nova matrícula"
+              : "Matricular-se em um curso"}
+          </h5>
 
           <form onSubmit={handleSubmit}>
+            {ehAdmin && (
+              <div className="mb-3">
+                <label className="form-label text-muted">
+                  Usuário
+                </label>
 
-            <div className="mb-3">
-
-              <label className="form-label text-muted">
-                Usuário
-              </label>
-
-              <select
-                className="form-select"
-                value={idUsuario}
-                onChange={(e) =>
-                  setIdUsuario(e.target.value)
-                }
-              >
-                <option value="">
-                  Selecione um usuário
-                </option>
-
-                {usuarios.map((usuario) => (
-                  <option
-                    key={usuario.id}
-                    value={usuario.id}
-                  >
-                    {usuario.nome}
+                <select
+                  className="form-select"
+                  value={idUsuario}
+                  onChange={(e) =>
+                    setIdUsuario(
+                      e.target.value
+                    )
+                  }
+                >
+                  <option value="">
+                    Selecione um usuário
                   </option>
-                ))}
 
-              </select>
-
-            </div>
+                  {usuarios.map(
+                    (usuario) => (
+                      <option
+                        key={usuario.id}
+                        value={usuario.id}
+                      >
+                        {usuario.nome}
+                      </option>
+                    )
+                  )}
+                </select>
+              </div>
+            )}
 
             <div className="mb-3">
-
               <label className="form-label text-muted">
                 Curso
               </label>
@@ -489,68 +539,51 @@ export default function Matriculas() {
                     {curso.nome}
                   </option>
                 ))}
-
               </select>
-
             </div>
 
             <div className="crud-form-actions">
-
               <button
                 type="submit"
                 className="crud-btn crud-btn-primary"
               >
-                <i className="bi bi-plus-lg"></i>
-                Cadastrar matrícula
+                <i className="bi bi-plus-lg" />
+                Matricular
               </button>
-
             </div>
-
           </form>
-
         </div>
 
-        {/* LISTAGEM */}
         <div className="card crud-list-card">
-
           <div className="crud-list-header">
-
-            <h5>Matrículas cadastradas</h5>
+            <h5>
+              {ehAdmin
+                ? "Matrículas cadastradas"
+                : "Meus cursos"}
+            </h5>
 
             <small className="text-muted">
-              Acompanhe cursos e progresso dos
-              alunos
+              {matriculas.length} matrícula(s)
             </small>
-
           </div>
 
           {loading ? (
-
             <div className="p-4 text-center text-muted">
               Carregando...
             </div>
-
           ) : matriculas.length === 0 ? (
-
             <div className="p-4 text-center">
-
-              <i className="bi bi-person-check fs-3 text-muted"></i>
+              <i className="bi bi-journal-bookmark fs-3 text-muted" />
 
               <p className="mt-2 mb-0">
-                Nenhuma matrícula cadastrada.
+                Nenhuma matrícula encontrada.
               </p>
-
             </div>
-
           ) : (
-
             <div className="p-3">
-
               <div className="d-flex flex-column gap-3">
-
                 {matriculas.map(
                   (matricula) => {
-
                     const curso =
                       buscarCurso(
                         matricula.idCurso
@@ -570,127 +603,44 @@ export default function Matriculas() {
                         key={matricula.id}
                         className="card p-3"
                       >
-
-                        {/* RESUMO */}
                         <div className="d-flex justify-content-between align-items-start gap-3">
+                          <div>
+                            <strong>
+                              {curso?.nome ||
+                                "Curso não encontrado"}
+                            </strong>
 
-                          <div className="flex-grow-1">
-
-                            <div className="d-flex align-items-center gap-2 mb-1">
-
-                              <div
-                                className="d-flex align-items-center justify-content-center"
-                                style={{
-                                  width: "32px",
-                                  height: "32px",
-                                  borderRadius: "8px",
-                                  background:
-                                    "rgba(124, 63, 70, 0.18)",
-                                  color:
-                                    "var(--wine-light)"
-                                }}
-                              >
-                                <i className="bi bi-person"></i>
-                              </div>
-
-                              <div>
-                                <strong>
-                                  {buscarUsuario(
-                                    matricula.idUsuario
-                                  )}
-                                </strong>
-
-                                <div className="text-muted small">
-                                  {curso?.nome ||
-                                    "Curso não encontrado"}
-                                </div>
-                              </div>
-
-                            </div>
-
-                            <div className="mt-3">
-
-                              <div className="d-flex justify-content-between mb-1">
-
-                                <small className="text-muted">
-                                  Progresso
-                                </small>
-
-                                <small>
-                                  {
-                                    progresso.concluidas
-                                  }
-                                  /
-                                  {progresso.total} aulas
-                                  ·{" "}
-                                  <strong>
-                                    {
-                                      progresso.percentual
-                                    }
-                                    %
-                                  </strong>
-                                </small>
-
-                              </div>
-
-                              <div
-                                className="progress"
-                                style={{
-                                  height: "7px",
-                                  background:
-                                    "var(--surface-3)"
-                                }}
-                              >
-                                <div
-                                  className="progress-bar"
-                                  style={{
-                                    width: `${progresso.percentual}%`,
-                                    background:
-                                      "var(--wine-light)"
-                                  }}
-                                />
-                              </div>
-
-                              <div className="d-flex gap-3 mt-2">
-
-                                <small className="text-muted">
-                                  Matrícula:{" "}
-                                  {
-                                    matricula.dataMatricula
-                                  }
-                                </small>
-
-                                {matricula.dataConclusao && (
-                                  <small
-                                    style={{
-                                      color:
-                                        "var(--color-success)"
-                                    }}
-                                  >
-                                    <i className="bi bi-check-circle me-1"></i>
-                                    Concluído em{" "}
-                                    {
-                                      matricula.dataConclusao
-                                    }
-                                  </small>
+                            {ehAdmin && (
+                              <div className="text-muted small mt-1">
+                                <i className="bi bi-person me-1" />
+                                {buscarUsuario(
+                                  matricula.idUsuario
                                 )}
-
                               </div>
+                            )}
 
+                            <div className="text-muted small mt-1">
+                              Matrícula:{" "}
+                              {formatarData(
+                                matricula.dataMatricula
+                              )}
                             </div>
 
+                            {matricula.dataConclusao && (
+                              <div className="text-muted small mt-1">
+                                Conclusão:{" "}
+                                {formatarData(
+                                  matricula.dataConclusao
+                                )}
+                              </div>
+                            )}
                           </div>
 
                           <div className="crud-actions">
-
                             <button
                               type="button"
                               className="crud-btn crud-btn-secondary crud-btn-icon"
-                              title={
-                                aberta
-                                  ? "Fechar progresso"
-                                  : "Ver progresso"
-                              }
+                              title="Ver progresso"
                               onClick={() =>
                                 setMatriculaAberta(
                                   aberta
@@ -705,113 +655,112 @@ export default function Matriculas() {
                                     ? "bi-chevron-up"
                                     : "bi-chevron-down"
                                 }`}
-                              ></i>
+                              />
                             </button>
 
-                            <button
-                              type="button"
-                              className="crud-btn crud-btn-delete crud-btn-icon"
-                              title="Cancelar matrícula"
-                              onClick={() =>
-                                handleDelete(
-                                  matricula
-                                )
-                              }
-                            >
-                              <i className="bi bi-trash3"></i>
-                            </button>
-
+                            {ehAdmin && (
+                              <button
+                                type="button"
+                                className="crud-btn crud-btn-delete crud-btn-icon"
+                                title="Cancelar matrícula"
+                                onClick={() =>
+                                  handleDelete(
+                                    matricula
+                                  )
+                                }
+                              >
+                                <i className="bi bi-trash3" />
+                              </button>
+                            )}
                           </div>
-
                         </div>
 
-                        {/* DETALHAMENTO */}
-                        {aberta && (
+                        <div className="mt-3">
+                          <div className="d-flex justify-content-between small mb-1">
+                            <span className="text-muted">
+                              Progresso
+                            </span>
+
+                            <span>
+                              {progresso.concluidas}/
+                              {progresso.total} (
+                              {progresso.percentual}
+                              %)
+                            </span>
+                          </div>
 
                           <div
-                            className="mt-4 pt-3"
+                            className="progress"
                             style={{
-                              borderTop:
-                                "1px solid var(--border)"
+                              height: "7px",
                             }}
                           >
+                            <div
+                              className="progress-bar"
+                              role="progressbar"
+                              style={{
+                                width: `${progresso.percentual}%`,
+                              }}
+                              aria-valuenow={
+                                progresso.percentual
+                              }
+                              aria-valuemin={0}
+                              aria-valuemax={100}
+                            />
+                          </div>
+                        </div>
 
-                            {!curso ? (
-
-                              <p className="text-muted mb-0">
-                                Curso não encontrado.
+                        {aberta && (
+                          <div className="mt-4">
+                            {!curso ||
+                            curso.modulos.length ===
+                              0 ? (
+                              <p className="text-muted small mb-0">
+                                Este curso ainda não
+                                possui módulos e aulas.
                               </p>
-
                             ) : (
-                              curso.modulos || []
-                            ).length === 0 ? (
-
-                              <div className="text-center py-3">
-
-                                <i className="bi bi-journal-x fs-4 text-muted"></i>
-
-                                <p className="text-muted mt-2 mb-0">
-                                  Este curso ainda não
-                                  possui módulos e aulas.
-                                </p>
-
-                              </div>
-
-                            ) : (
-
                               <div className="d-flex flex-column gap-3">
-
-                                {(curso.modulos || []).map(
+                                {curso.modulos.map(
                                   (
                                     modulo,
                                     moduloIndex
                                   ) => (
-
                                     <div
                                       key={
                                         modulo.id
                                       }
                                     >
+                                      <strong
+                                        style={{
+                                          fontSize:
+                                            "13px",
+                                        }}
+                                      >
+                                        Módulo{" "}
+                                        {moduloIndex +
+                                          1}
+                                        :{" "}
+                                        {
+                                          modulo.titulo
+                                        }
+                                      </strong>
 
-                                      <div className="mb-2">
-
-                                        <strong
-                                          style={{
-                                            fontSize:
-                                              "13px"
-                                          }}
-                                        >
-                                          Módulo{" "}
-                                          {moduloIndex +
-                                            1}
-                                          :{" "}
-                                          {
-                                            modulo.titulo
-                                          }
-                                        </strong>
-
-                                      </div>
-
-                                      {(modulo.aulas ||
-                                        []).length ===
-                                      0 ? (
-
-                                        <small className="text-muted">
-                                          Nenhuma aula
-                                          cadastrada neste
-                                          módulo.
-                                        </small>
-
-                                      ) : (
-
-                                        <div className="d-flex flex-column gap-2">
-
-                                          {modulo.aulas.map(
+                                      <div className="mt-2">
+                                        {modulo.aulas
+                                          .length ===
+                                        0 ? (
+                                          <small className="text-muted">
+                                            Nenhuma
+                                            aula neste
+                                            módulo.
+                                          </small>
+                                        ) : (
+                                          modulo.aulas.map(
                                             (
                                               aula,
                                               aulaIndex
                                             ) => {
-
                                               const concluida =
                                                 aulaConcluida(
                                                   matricula,
@@ -823,62 +772,29 @@ export default function Matriculas() {
                                                   key={
                                                     aula.id
                                                   }
-                                                  className="d-flex justify-content-between align-items-center gap-3"
-                                                  style={{
-                                                    padding:
-                                                      "10px 12px",
-                                                    border:
-                                                      "1px solid var(--border)",
-                                                    borderRadius:
-                                                      "8px",
-                                                    background:
-                                                      concluida
-                                                        ? "rgba(124, 63, 70, 0.10)"
-                                                        : "var(--surface)"
-                                                  }}
+                                                  className="d-flex justify-content-between align-items-center py-2 border-top"
                                                 >
-
-                                                  <div className="d-flex align-items-center gap-2">
-
-                                                    <i
-                                                      className={`bi ${
-                                                        concluida
-                                                          ? "bi-check-circle-fill"
-                                                          : "bi-play-circle"
-                                                      }`}
+                                                  <div>
+                                                    <span
                                                       style={{
-                                                        color:
-                                                          concluida
-                                                            ? "var(--wine-light)"
-                                                            : "var(--text-muted)"
+                                                        fontSize:
+                                                          "12px",
                                                       }}
-                                                    ></i>
+                                                    >
+                                                      Aula{" "}
+                                                      {aulaIndex +
+                                                        1}
+                                                      :{" "}
+                                                      {
+                                                        aula.titulo
+                                                      }
+                                                    </span>
 
-                                                    <div>
-
-                                                      <div
-                                                        style={{
-                                                          fontSize:
-                                                            "12px"
-                                                        }}
-                                                      >
-                                                        Aula{" "}
-                                                        {aulaIndex +
-                                                          1}
-                                                        :{" "}
-                                                        {
-                                                          aula.titulo
-                                                        }
+                                                    {concluida && (
+                                                      <div className="text-muted small">
+                                                        Concluída
                                                       </div>
-
-                                                      <small className="text-muted">
-                                                        {concluida
-                                                          ? "Aula concluída"
-                                                          : "Pendente"}
-                                                      </small>
-
-                                                    </div>
-
+                                                    )}
                                                   </div>
 
                                                   <button
@@ -887,6 +803,10 @@ export default function Matriculas() {
                                                       concluida
                                                         ? "crud-btn crud-btn-secondary"
                                                         : "crud-btn crud-btn-primary"
+                                                    }
+                                                    disabled={
+                                                      concluida &&
+                                                      !ehAdmin
                                                     }
                                                     onClick={() =>
                                                       alternarAula(
@@ -898,53 +818,37 @@ export default function Matriculas() {
                                                     <i
                                                       className={`bi ${
                                                         concluida
-                                                          ? "bi-arrow-counterclockwise"
-                                                          : "bi-check-lg"
+                                                          ? "bi-check-circle-fill"
+                                                          : "bi-circle"
                                                       }`}
-                                                    ></i>
+                                                    />
 
                                                     {concluida
-                                                      ? "Desmarcar"
-                                                      : "Concluir"}
+                                                      ? " Concluída"
+                                                      : " Concluir"}
                                                   </button>
-
                                                 </div>
                                               )
                                             }
-                                          )}
-
-                                        </div>
-
-                                      )}
-
+                                          )
+                                        )}
+                                      </div>
                                     </div>
-
                                   )
                                 )}
-
                               </div>
-
                             )}
-
                           </div>
-
                         )}
-
                       </div>
                     )
                   }
                 )}
-
               </div>
-
             </div>
-
           )}
-
         </div>
-
       </div>
-
     </div>
   )
 }

@@ -22,6 +22,7 @@ model Usuario {
   name String
   email        String   @unique
   password    String
+  perfil     PerfilUsuario @default(ALUNO)
   date DateTime @default(now())
 
   cursos       Curso[]
@@ -278,4 +279,10 @@ enum MetodoPagamento {
   PIX
   CARTAO
   BOLETO
+}
+
+enum PerfilUsuario {
+  ALUNO
+  PROFESSOR
+  ADMIN
 }

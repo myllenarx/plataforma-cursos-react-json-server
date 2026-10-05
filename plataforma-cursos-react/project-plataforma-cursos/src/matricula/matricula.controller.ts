@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -15,42 +16,61 @@ import { MatriculaService } from './matricula.service';
 import { CreateMatriculaDto } from './dto/create-matricula.dto';
 import { UpdateMatriculaDto } from './dto/update-matricula.dto';
 
+import { PerfilUsuario } from '../generated/prisma/enums';
+import { Roles } from '../auth/roles/roles.decorator';
+import { RolesGuard } from '../auth/roles/roles.guard';
+
+type RequestAutenticada = {
+  user: {
+    usuarioId: number;
+    email: string;
+    perfil: PerfilUsuario;
+  };
+};
+
 @ApiTags('matriculas')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
 @Controller('matriculas')
 export class MatriculaController {
-  constructor(private readonly matriculaService: MatriculaService) {}
+  constructor(private readonly matriculaService: MatriculaService) { }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ALUNO, PerfilUsuario.ADMIN)
   @Post()
   @ApiOperation({ summary: 'Criar uma nova matrícula' })
-  create(@Body() createMatriculaDto: CreateMatriculaDto) {
-    return this.matriculaService.create(createMatriculaDto);
-  }
-
-  @Get()
-  @ApiOperation({ summary: 'Listar todas as matrículas' })
-  findAll() {
-    return this.matriculaService.findAll();
-  }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Buscar uma matrícula pelo ID' })
-  findOne(@Param('id') id: string) {
-    return this.matriculaService.findOne(+id);
-  }
-
-  @Patch(':id')
-  @ApiOperation({ summary: 'Atualizar uma matrícula' })
-  update(
-    @Param('id') id: string,
-    @Body() updateMatriculaDto: UpdateMatriculaDto,
+  create(
+    @Body() dto: CreateMatriculaDto,
+    @Req() req: RequestAutenticada,
   ) {
-    return this.matriculaService.update(+id, updateMatriculaDto);
+    return this.matriculaService.create(dto, req.user);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ALUNO, PerfilUsuario.ADMIN)
+  @Get()
+  @ApiOperation({ summary: 'Listar matrículas permitidas ao usuário' })
+  findAll(@Req() req: RequestAutenticada) {
+    return this.matriculaService.findAll(req.user);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ALUNO, PerfilUsuario.ADMIN)
+  @Get(':id')
+  findOne(@Param('id') id: string, @Req() req: RequestAutenticada) {
+    return this.matriculaService.findOne(+id, req.user);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ADMIN)
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: UpdateMatriculaDto) {
+    return this.matriculaService.update(+id, dto);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ADMIN)
   @Delete(':id')
-  @ApiOperation({ summary: 'Remover uma matrícula' })
   remove(@Param('id') id: string) {
     return this.matriculaService.remove(+id);
   }

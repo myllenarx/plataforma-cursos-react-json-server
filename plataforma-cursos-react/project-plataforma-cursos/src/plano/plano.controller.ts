@@ -15,13 +15,19 @@ import { PlanoService } from './plano.service';
 import { CreatePlanoDto } from './dto/create-plano.dto';
 import { UpdatePlanoDto } from './dto/update-plano.dto';
 
+import { PerfilUsuario } from '../generated/prisma/enums';
+import { Roles } from '../auth/roles/roles.decorator';
+import { RolesGuard } from '../auth/roles/roles.guard';
+
 @ApiTags('planos')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
 @Controller('planos')
 export class PlanoController {
-  constructor(private readonly planoService: PlanoService) {}
+  constructor(private readonly planoService: PlanoService) { }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ADMIN)
   @Post()
   @ApiOperation({ summary: 'Criar um novo plano' })
   create(@Body() createPlanoDto: CreatePlanoDto) {
@@ -40,12 +46,16 @@ export class PlanoController {
     return this.planoService.findOne(+id);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ADMIN)
   @Patch(':id')
   @ApiOperation({ summary: 'Atualizar um plano' })
   update(@Param('id') id: string, @Body() updatePlanoDto: UpdatePlanoDto) {
     return this.planoService.update(+id, updatePlanoDto);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ADMIN)
   @Delete(':id')
   @ApiOperation({ summary: 'Remover um plano' })
   remove(@Param('id') id: string) {

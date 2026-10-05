@@ -1,4 +1,9 @@
-import { NavLink } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
+import {
+  getUsuarioLogado,
+  logout,
+  type PerfilUsuario,
+} from "../../services/auth"
 
 interface SidebarProps {
   isOpen: boolean
@@ -9,6 +14,7 @@ interface MenuItem {
   label: string
   path: string
   icon: string
+  perfis?: PerfilUsuario[]
 }
 
 const mainItems: MenuItem[] = [
@@ -34,6 +40,12 @@ const learningItems: MenuItem[] = [
     label: "Categorias",
     path: "/categorias",
     icon: "bi-collection",
+    perfis: ["ADMIN"],
+  },
+  {
+    label: "Avaliações",
+    path: "/avaliacoes",
+    icon: "bi-star",
   },
 ]
 
@@ -42,11 +54,19 @@ const userItems: MenuItem[] = [
     label: "Matrículas",
     path: "/matriculas",
     icon: "bi-person-check",
+    perfis: ["ALUNO", "ADMIN"],
   },
   {
     label: "Certificados",
     path: "/certificados",
     icon: "bi-award",
+    perfis: ["ALUNO", "ADMIN"],
+  },
+  {
+    label: "Planos e Assinaturas",
+    path: "/planos",
+    icon: "bi-credit-card",
+    perfis: ["ALUNO", "ADMIN"],
   },
 ]
 
@@ -55,8 +75,33 @@ const administrationItems: MenuItem[] = [
     label: "Usuários",
     path: "/usuarios",
     icon: "bi-people",
+    perfis: ["ADMIN"],
   },
 ]
+
+function filtrarItens(
+  items: MenuItem[],
+  perfil?: PerfilUsuario,
+) {
+  return items.filter(
+    (item) =>
+      !item.perfis ||
+      (perfil !== undefined && item.perfis.includes(perfil)),
+  )
+}
+
+function nomePerfil(perfil?: PerfilUsuario) {
+  switch (perfil) {
+    case "ADMIN":
+      return "Administrador"
+    case "PROFESSOR":
+      return "Professor"
+    case "ALUNO":
+      return "Aluno"
+    default:
+      return "Usuário"
+  }
+}
 
 function MenuSection({
   title,
@@ -67,6 +112,10 @@ function MenuSection({
   items: MenuItem[]
   onClose: () => void
 }) {
+  if (items.length === 0) {
+    return null
+  }
+
   return (
     <div className="sidebar-section">
       <span className="sidebar-section-title">{title}</span>
@@ -94,6 +143,26 @@ export default function Sidebar({
   isOpen,
   onClose,
 }: SidebarProps) {
+  const usuario = getUsuarioLogado()
+  const perfil = usuario?.perfil
+
+  const itensPrincipais = filtrarItens(mainItems, perfil)
+  const itensAprendizado = filtrarItens(learningItems, perfil)
+  const itensUsuario = filtrarItens(userItems, perfil)
+  const itensAdministracao = filtrarItens(
+    administrationItems,
+    perfil,
+  )
+
+  const navigate = useNavigate()
+
+  function handleLogout() {
+    logout()
+    navigate("/login", { replace: true })
+  }
+  const inicial =
+    usuario?.email?.charAt(0).toUpperCase() ?? "U"
+
   return (
     <aside className={`sidebar ${isOpen ? "open" : ""}`}>
       <div className="sidebar-header">
@@ -125,25 +194,25 @@ export default function Sidebar({
       <div className="sidebar-content">
         <MenuSection
           title="Principal"
-          items={mainItems}
+          items={itensPrincipais}
           onClose={onClose}
         />
 
         <MenuSection
           title="Aprendizado"
-          items={learningItems}
+          items={itensAprendizado}
           onClose={onClose}
         />
 
         <MenuSection
           title="Minha área"
-          items={userItems}
+          items={itensUsuario}
           onClose={onClose}
         />
 
         <MenuSection
           title="Administração"
-          items={administrationItems}
+          items={itensAdministracao}
           onClose={onClose}
         />
       </div>
@@ -151,20 +220,22 @@ export default function Sidebar({
       <div className="sidebar-footer">
         <div className="user-profile">
           <div className="user-avatar">
-            M
+            {inicial}
           </div>
 
           <div className="user-info">
-            <strong>Myllena</strong>
-            <span>Administradora</span>
+            <strong>{usuario?.email ?? "Usuário"}</strong>
+            <span>{nomePerfil(perfil)}</span>
           </div>
 
           <button
             type="button"
             className="user-menu-button"
-            aria-label="Opções do usuário"
+            aria-label="Sair"
+            title="Sair"
+            onClick={handleLogout}
           >
-            <i className="bi bi-three-dots-vertical" />
+            <i className="bi bi-box-arrow-right" />
           </button>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { getUsuarioLogado } from "../services/auth"
 import { useEffect, useMemo, useState } from "react"
 
 import { getCursos } from "../services/cursosService"
@@ -18,7 +19,10 @@ import {
   type Certificado
 } from "../services/certificadosService"
 
-import { getTrilhas } from "../services/trilhasService"
+import {
+  getTrilhas,
+  type Trilha,
+} from "../services/trilhasService"
 
 type Aula = {
   id: string
@@ -47,13 +51,6 @@ type Usuario = {
 type Categoria = {
   id: string
   nome: string
-}
-
-type Trilha = {
-  id: string
-  titulo: string
-  descricao: string
-  cursos: string[]
 }
 
 type DashboardData = {
@@ -128,48 +125,71 @@ export default function Dashboard() {
   // CARREGAMENTO
   // =========================================================
 
-  useEffect(() => {
-    async function carregarDashboard() {
-      try {
-        setLoading(true)
-        setError(false)
+  const usuarioLogado = getUsuarioLogado()
+  const perfil = usuarioLogado?.perfil
 
+  useEffect(() => {
+  async function carregarDashboard() {
+    try {
+      setError(false)
+
+      const [
+        cursosRes,
+        categoriasRes,
+        trilhasRes,
+      ] = await Promise.all([
+        getCursos(),
+        getCategorias(),
+        getTrilhas(),
+      ])
+
+      if (perfil === "ADMIN") {
         const [
-          cursosResponse,
-          categoriasResponse,
-          usuariosResponse,
-          matriculasResponse,
-          progressosResponse,
-          certificadosResponse,
-          trilhasResponse
+          usuariosRes,
+          matriculasRes,
+          progressosRes,
+          certificadosRes,
         ] = await Promise.all([
-          getCursos(),
-          getCategorias(),
           getUsuarios(),
           getMatriculas(),
           getProgressos(),
           getCertificados(),
-          getTrilhas()
         ])
 
         setDados({
-          cursos: cursosResponse.data,
-          categorias: categoriasResponse.data,
-          usuarios: usuariosResponse.data,
-          matriculas: matriculasResponse.data,
-          progressos: progressosResponse.data,
-          certificados: certificadosResponse.data,
-          trilhas: trilhasResponse.data
+          cursos: cursosRes.data,
+          categorias: categoriasRes.data,
+          usuarios: usuariosRes.data,
+          matriculas: matriculasRes.data,
+          progressos: progressosRes.data,
+          certificados: certificadosRes.data,
+          trilhas: trilhasRes.data,
         })
-      } catch {
-        setError(true)
-      } finally {
-        setLoading(false)
+      } else {
+        setDados({
+          cursos: cursosRes.data,
+          categorias: categoriasRes.data,
+          usuarios: [],
+          matriculas: [],
+          progressos: [],
+          certificados: [],
+          trilhas: trilhasRes.data,
+        })
       }
-    }
+    } catch (error) {
+      console.error(
+        "Erro ao carregar dashboard:",
+        error
+      )
 
-    carregarDashboard()
-  }, [])
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  carregarDashboard()
+}, [])
 
   // =========================================================
   // CÁLCULOS
@@ -242,12 +262,6 @@ export default function Dashboard() {
               ) ===
                 String(
                   matricula.idUsuario
-                ) &&
-              String(
-                progresso.idCurso
-              ) ===
-                String(
-                  matricula.idCurso
                 ) &&
               aulas.some(
                 (aula) =>

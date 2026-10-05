@@ -15,17 +15,23 @@ import { TrilhaCursoService } from './trilha-curso.service';
 import { CreateTrilhaCursoDto } from './dto/create-trilha-curso.dto';
 import { UpdateTrilhaCursoDto } from './dto/update-trilha-curso.dto';
 
+import { PerfilUsuario } from '../generated/prisma/enums';
+import { Roles } from '../auth/roles/roles.decorator';
+import { RolesGuard } from '../auth/roles/roles.guard';
+
 @ApiTags('trilhas-cursos')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
 @Controller('trilhas-cursos')
 export class TrilhaCursoController {
-  constructor(private readonly trilhaCursoService: TrilhaCursoService) {}
+  constructor(private readonly trilhaCursoService: TrilhaCursoService) { }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ADMIN)
   @Post()
   @ApiOperation({ summary: 'Adicionar um curso a uma trilha' })
-  create(@Body() createTrilhaCursoDto: CreateTrilhaCursoDto) {
-    return this.trilhaCursoService.create(createTrilhaCursoDto);
+  create(@Body() dto: CreateTrilhaCursoDto) {
+    return this.trilhaCursoService.create(dto);
   }
 
   @Get()
@@ -35,7 +41,6 @@ export class TrilhaCursoController {
   }
 
   @Get(':idTrilha/:idCurso')
-  @ApiOperation({ summary: 'Buscar um curso específico de uma trilha' })
   findOne(
     @Param('idTrilha') idTrilha: string,
     @Param('idCurso') idCurso: string,
@@ -43,22 +48,20 @@ export class TrilhaCursoController {
     return this.trilhaCursoService.findOne(+idTrilha, +idCurso);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ADMIN)
   @Patch(':idTrilha/:idCurso')
-  @ApiOperation({ summary: 'Alterar a ordem de um curso na trilha' })
   update(
     @Param('idTrilha') idTrilha: string,
     @Param('idCurso') idCurso: string,
-    @Body() updateTrilhaCursoDto: UpdateTrilhaCursoDto,
+    @Body() dto: UpdateTrilhaCursoDto,
   ) {
-    return this.trilhaCursoService.update(
-      +idTrilha,
-      +idCurso,
-      updateTrilhaCursoDto,
-    );
+    return this.trilhaCursoService.update(+idTrilha, +idCurso, dto);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(PerfilUsuario.ADMIN)
   @Delete(':idTrilha/:idCurso')
-  @ApiOperation({ summary: 'Remover um curso de uma trilha' })
   remove(
     @Param('idTrilha') idTrilha: string,
     @Param('idCurso') idCurso: string,

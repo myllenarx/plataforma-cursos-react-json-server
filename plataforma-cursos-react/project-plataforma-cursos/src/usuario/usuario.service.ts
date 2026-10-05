@@ -1,24 +1,65 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { PerfilUsuario } from '../generated/prisma/enums';
 
 @Injectable()
 export class UsuarioService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
-  async create(createUsuarioDto: CreateUsuarioDto) {
+  private readonly dadosPublicos = {
+    ID_Usuario: true,
+    name: true,
+    email: true,
+    perfil: true,
+    date: true,
+  };
+
+  async create(
+    createUsuarioDto: CreateUsuarioDto,
+    perfilPermitido: PerfilUsuario = PerfilUsuario.ALUNO,
+  ) {
+    const existente = await this.prisma.usuario.findUnique({
+      where: {
+        email: createUsuarioDto.email,
+      },
+    });
+
+    if (existente) {
+      throw new ConflictException(
+        'Já existe um usuário cadastrado com este e-mail',
+      );
+    }
+
     const salt = await bcrypt.genSalt();
-    const hash = await bcrypt.hash(createUsuarioDto.password, salt);
+    const hash = await bcrypt.hash(
+      createUsuarioDto.password,
+      salt,
+    );
 
     return this.prisma.usuario.create({
       data: {
-        ...createUsuarioDto,
+        name: createUsuarioDto.name,
+        email: createUsuarioDto.email,
         password: hash,
+        perfil: perfilPermitido,
       },
+      select: this.dadosPublicos,
     });
+  }
+
+  async createByAdmin(createUsuarioDto: CreateUsuarioDto) {
+    return this.create(
+      createUsuarioDto,
+      createUsuarioDto.perfil ?? PerfilUsuario.ALUNO,
+    );
   }
 
   async findByEmail(email: string) {
@@ -30,31 +71,110 @@ export class UsuarioService {
   }
 
   findAll() {
-    return this.prisma.usuario.findMany();
-  }
-
-  findOne(id: number) {
-    return this.prisma.usuario.findUnique({
-      where: {
-        ID_Usuario: id,
+    return this.prisma.usuario.findMany({
+      select: this.dadosPublicos,
+      orderBy: {
+        ID_Usuario: 'asc',
       },
     });
   }
 
-  update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
+  async findOne(id: number) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: {
+        ID_Usuario: id,
+      },
+      select: this.dadosPublicos,
+    });
+
+    if (!usuario) {
+      throw new NotFoundException(
+        'Usuário não encontrado',
+      );
+    }
+
+    return usuario;
+  }
+
+  async update(
+    id: number,
+    updateUsuarioDto: UpdateUsuarioDto,
+  ) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: {
+        ID_Usuario: id,
+      },
+    });
+
+    if (!usuario) {
+      throw new NotFoundException(
+        'Usuário não encontrado',
+      );
+    }
+
+    if (
+      updateUsuarioDto.email &&
+      updateUsuarioDto.email !== usuario.email
+    ) {
+      const emailEmUso =
+        await this.prisma.usuario.findUnique({
+          where: {
+            email: updateUsuarioDto.email,
+          },
+        });
+
+      if (emailEmUso) {
+        throw new ConflictException(
+          'Já existe um usuário cadastrado com este e-mail',
+        );
+      }
+    }
+
+    let password: string | undefined;
+
+    if (updateUsuarioDto.password) {
+      const salt = await bcrypt.genSalt();
+
+      password = await bcrypt.hash(
+        updateUsuarioDto.password,
+        salt,
+      );
+    }
+
     return this.prisma.usuario.update({
       where: {
         ID_Usuario: id,
       },
-      data: updateUsuarioDto,
+      data: {
+        name: updateUsuarioDto.name,
+        email: updateUsuarioDto.email,
+        perfil: updateUsuarioDto.perfil,
+        ...(password
+          ? { password }
+          : {}),
+      },
+      select: this.dadosPublicos,
     });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: {
+        ID_Usuario: id,
+      },
+    });
+
+    if (!usuario) {
+      throw new NotFoundException(
+        'Usuário não encontrado',
+      );
+    }
+
     return this.prisma.usuario.delete({
       where: {
         ID_Usuario: id,
       },
+      select: this.dadosPublicos,
     });
   }
 }

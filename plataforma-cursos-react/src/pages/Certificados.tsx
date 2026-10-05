@@ -2,374 +2,302 @@ import { useEffect, useMemo, useState } from "react"
 import jsPDF from "jspdf"
 
 import {
-  getUsuarios,
-  type Usuario
-} from "../services/usuariosService"
-
-import { getCursos } from "../services/cursosService"
+  createCertificado,
+  deleteCertificado,
+  getCertificados,
+  type Certificado,
+} from "../services/certificadosService"
 
 import {
   getMatriculas,
-  type Matricula
+  type Matricula,
 } from "../services/matriculasService"
 
 import {
-  getCertificados,
-  createCertificado,
-  deleteCertificado,
-  type Certificado
-} from "../services/certificadosService"
+  getCursos,
+  type Curso,
+} from "../services/cursosService"
 
-type Curso = {
-  id: string
-  nome: string
-}
+import {
+  getUsuarios,
+  type Usuario,
+} from "../services/usuariosService"
+
+import {
+  getUsuarioLogado,
+} from "../services/auth"
 
 export default function Certificados() {
-  const [usuarios, setUsuarios] =
-    useState<Usuario[]>([])
+  const usuarioLogado =
+    getUsuarioLogado()
 
-  const [cursos, setCursos] =
-    useState<Curso[]>([])
+  const ehAdmin =
+    usuarioLogado?.perfil === "ADMIN"
+
+  const [certificados, setCertificados] =
+    useState<Certificado[]>([])
 
   const [matriculas, setMatriculas] =
     useState<Matricula[]>([])
 
-  const [
-    certificados,
-    setCertificados
-  ] = useState<Certificado[]>([])
+  const [cursos, setCursos] =
+    useState<Curso[]>([])
+
+  const [usuarios, setUsuarios] =
+    useState<Usuario[]>([])
 
   const [
-    idMatricula,
-    setIdMatricula
+    matriculaSelecionada,
+    setMatriculaSelecionada,
   ] = useState("")
-
-  const [
-    certificadoGerado,
-    setCertificadoGerado
-  ] = useState<Certificado | null>(
-    null
-  )
-
-  const [busca, setBusca] =
-    useState("")
 
   const [loading, setLoading] =
     useState(true)
 
-  // =========================================================
-  // CARREGAMENTO
-  // =========================================================
+  const [emitindo, setEmitindo] =
+    useState(false)
 
-  function carregarDados() {
-     Promise.all([
-      getUsuarios(),
-      getCursos(),
-      getMatriculas(),
-      getCertificados()
-    ])
-      .then(
-        ([
-          usuariosResponse,
-          cursosResponse,
+  async function carregarDados() {
+    try {
+      setLoading(true)
+
+      if (ehAdmin) {
+        const [
+          certificadosResponse,
           matriculasResponse,
-          certificadosResponse
-        ]) => {
-          setUsuarios(
-            usuariosResponse.data
-          )
+          cursosResponse,
+          usuariosResponse,
+        ] = await Promise.all([
+          getCertificados(),
+          getMatriculas(),
+          getCursos(),
+          getUsuarios(),
+        ])
 
-          setCursos(
-            cursosResponse.data
-          )
-
-          setMatriculas(
-            matriculasResponse.data
-          )
-
-          setCertificados(
-            certificadosResponse.data
-          )
-        }
-      )
-      .catch(() => {
-        alert(
-          "Não foi possível carregar os dados dos certificados."
+        setCertificados(
+          certificadosResponse.data
         )
-      })
-      .finally(() => {
-        setLoading(false)
-      })
+
+        setMatriculas(
+          matriculasResponse.data
+        )
+
+        setCursos(
+          cursosResponse.data
+        )
+
+        setUsuarios(
+          usuariosResponse.data
+        )
+      } else {
+        const certificadosResponse =
+          await getCertificados()
+
+        setCertificados(
+          certificadosResponse.data
+        )
+
+        setMatriculas([])
+        setCursos([])
+        setUsuarios([])
+      }
+    } catch (error) {
+      console.error(
+        "Erro ao carregar certificados:",
+        error
+      )
+
+      alert(
+        "Não foi possível carregar os certificados."
+      )
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
     carregarDados()
   }, [])
 
-  // =========================================================
-  // BUSCAS
-  // =========================================================
-
-  function buscarUsuario(
-    id: string
-  ) {
-    return usuarios.find(
-      (usuario) =>
-        String(usuario.id) ===
-        String(id)
-    )
-  }
-
   function buscarCurso(
-    id: string
+    idCurso: string
   ) {
     return cursos.find(
       (curso) =>
         String(curso.id) ===
-        String(id)
+        String(idCurso)
     )
   }
 
-  // =========================================================
-  // MATRÍCULAS APTAS
-  // =========================================================
+  function buscarUsuario(
+    idUsuario: string
+  ) {
+    return usuarios.find(
+      (usuario) =>
+        String(usuario.id) ===
+        String(idUsuario)
+    )
+  }
 
-  const matriculasConcluidas =
+  const matriculasElegiveis =
     useMemo(() => {
+      if (!ehAdmin) {
+        return []
+      }
+
       return matriculas.filter(
-        (matricula) =>
-          Boolean(
-            matricula.dataConclusao
-          )
-      )
-    }, [matriculas])
+        (matricula) => {
+          if (
+            !matricula.dataConclusao
+          ) {
+            return false
+          }
 
-  const matriculasDisponiveis =
-    useMemo(() => {
-      return matriculasConcluidas.filter(
-        (matricula) =>
-          !certificados.some(
-            (certificado) =>
-              String(
-                certificado.idUsuario
-              ) ===
+          const jaPossuiCertificado =
+            certificados.some(
+              (certificado) =>
                 String(
-                  matricula.idUsuario
-                ) &&
-              String(
-                certificado.idCurso
-              ) ===
+                  certificado.idUsuario
+                ) ===
+                  String(
+                    matricula.idUsuario
+                  ) &&
                 String(
-                  matricula.idCurso
-                )
-          )
+                  certificado.idCurso
+                ) ===
+                  String(
+                    matricula.idCurso
+                  )
+            )
+
+          return !jaPossuiCertificado
+        }
       )
     }, [
-      matriculasConcluidas,
-      certificados
+      ehAdmin,
+      matriculas,
+      certificados,
     ])
 
-  // =========================================================
-  // CÓDIGO
-  // =========================================================
-
-  function gerarCodigo() {
-    const numero =
-      Math.floor(
-        100000 +
-          Math.random() * 900000
-      )
-
-    return `CERT-${numero}`
-  }
-
-  function gerarCodigoUnico() {
-    let codigo = gerarCodigo()
-
-    while (
-      certificados.some(
-        (certificado) =>
-          certificado.codigo === codigo
-      )
-    ) {
-      codigo = gerarCodigo()
+  async function emitirCertificado() {
+    if (!ehAdmin) {
+      return
     }
 
-    return codigo
-  }
-
-  // =========================================================
-  // EMISSÃO
-  // =========================================================
-
-  function gerarCertificado(
-    e: React.FormEvent
-  ) {
-    e.preventDefault()
-
-    if (!idMatricula) {
+    if (!matriculaSelecionada) {
       alert(
-        "Selecione uma conclusão de curso."
+        "Selecione uma matrícula concluída."
       )
       return
     }
 
     const matricula =
-      matriculasConcluidas.find(
+      matriculasElegiveis.find(
         (item) =>
           String(item.id) ===
-          String(idMatricula)
+          String(
+            matriculaSelecionada
+          )
       )
 
     if (!matricula) {
       alert(
-        "A matrícula selecionada não está concluída."
+        "Matrícula concluída não encontrada."
       )
       return
     }
 
-    const usuario =
-      buscarUsuario(
-        matricula.idUsuario
-      )
+    try {
+      setEmitindo(true)
 
-    const curso =
-      buscarCurso(
-        matricula.idCurso
-      )
+      await createCertificado({
+        idUsuario:
+          matricula.idUsuario,
 
-    if (!usuario || !curso) {
-      alert(
-        "Não foi possível localizar o usuário ou o curso."
-      )
-      return
-    }
-
-    const jaExiste =
-      certificados.some(
-        (certificado) =>
-          String(
-            certificado.idUsuario
-          ) ===
-            String(usuario.id) &&
-          String(
-            certificado.idCurso
-          ) ===
-            String(curso.id)
-      )
-
-    if (jaExiste) {
-      alert(
-        "Já existe um certificado emitido para este usuário neste curso."
-      )
-      return
-    }
-
-    const novoCertificado = {
-      idUsuario:
-        String(usuario.id),
-
-      idCurso:
-        String(curso.id),
-
-      usuario:
-        usuario.nome,
-
-      curso:
-        curso.nome,
-
-      codigo:
-        gerarCodigoUnico(),
-
-      dataEmissao:
-        new Date().toLocaleDateString(
-          "pt-BR"
-        )
-    }
-
-    createCertificado(
-      novoCertificado
-    )
-      .then((response) => {
-        const salvo =
-          response.data
-
-        setCertificados(
-          (atuais) => [
-            ...atuais,
-            salvo
-          ]
-        )
-
-        setCertificadoGerado(
-          salvo
-        )
-
-        setIdMatricula("")
+        idCurso:
+          matricula.idCurso,
       })
-      .catch(() => {
-        alert(
-          "Não foi possível emitir o certificado."
-        )
-      })
+
+      setMatriculaSelecionada("")
+
+      await carregarDados()
+    } catch (error) {
+      console.error(
+        "Erro ao emitir certificado:",
+        error
+      )
+
+      alert(
+        "Não foi possível emitir o certificado. Confirme se o curso está concluído e se já não existe um certificado para esta matrícula."
+      )
+    } finally {
+      setEmitindo(false)
+    }
   }
 
-  // =========================================================
-  // EXCLUSÃO
-  // =========================================================
-
-  function handleDelete(
+  async function excluirCertificado(
     certificado: Certificado
   ) {
-    if (
-      !window.confirm(
-        `Deseja realmente excluir o certificado ${certificado.codigo}?`
-      )
-    ) {
+    if (!ehAdmin) {
       return
     }
 
-    deleteCertificado(
-      certificado.id
-    )
-      .then(() => {
-        setCertificados(
-          (atuais) =>
-            atuais.filter(
-              (item) =>
-                item.id !==
-                certificado.id
-            )
-        )
+    const confirmar =
+      window.confirm(
+        `Deseja realmente excluir o certificado ${certificado.codigo}?`
+      )
 
-        if (
-          certificadoGerado?.id ===
-          certificado.id
-        ) {
-          setCertificadoGerado(
-            null
-          )
-        }
-      })
-      .catch(() => {
-        alert(
-          "Não foi possível excluir o certificado."
-        )
-      })
+    if (!confirmar) {
+      return
+    }
+
+    try {
+      await deleteCertificado(
+        certificado.id
+      )
+
+      await carregarDados()
+    } catch (error) {
+      console.error(
+        "Erro ao excluir certificado:",
+        error
+      )
+
+      alert(
+        "Não foi possível excluir o certificado."
+      )
+    }
   }
 
-  // =========================================================
-  // PDF
-  // =========================================================
+  function formatarData(
+    data?: string | null
+  ) {
+    if (!data) {
+      return "-"
+    }
 
-  function baixarCertificado(
+    const valor = new Date(data)
+
+    if (
+      Number.isNaN(
+        valor.getTime()
+      )
+    ) {
+      return data
+    }
+
+    return valor.toLocaleDateString(
+      "pt-BR"
+    )
+  }
+
+  function gerarPDF(
     certificado: Certificado
   ) {
     const pdf = new jsPDF({
       orientation: "landscape",
       unit: "mm",
-      format: "a4"
+      format: "a4",
     })
 
     const largura =
@@ -378,26 +306,10 @@ export default function Certificados() {
     const altura =
       pdf.internal.pageSize.getHeight()
 
-    // Fundo
-    pdf.setFillColor(
-      248,
-      246,
-      246
-    )
-
-    pdf.rect(
-      0,
-      0,
-      largura,
-      altura,
-      "F"
-    )
-
-    // Moldura externa
     pdf.setDrawColor(
-      124,
-      63,
-      70
+      117,
+      62,
+      74
     )
 
     pdf.setLineWidth(2)
@@ -409,21 +321,19 @@ export default function Certificados() {
       altura - 20
     )
 
-    // Moldura interna
+    pdf.setDrawColor(
+      180,
+      180,
+      180
+    )
+
     pdf.setLineWidth(0.5)
 
     pdf.rect(
-      15,
-      15,
-      largura - 30,
-      altura - 30
-    )
-
-    // Título
-    pdf.setTextColor(
-      90,
-      45,
-      51
+      14,
+      14,
+      largura - 28,
+      altura - 28
     )
 
     pdf.setFont(
@@ -431,52 +341,44 @@ export default function Certificados() {
       "bold"
     )
 
-    pdf.setFontSize(30)
+    pdf.setFontSize(13)
+
+    pdf.text(
+      "ACADEMIA",
+      largura / 2,
+      30,
+      {
+        align: "center",
+      }
+    )
+
+    pdf.setFontSize(28)
 
     pdf.text(
       "CERTIFICADO",
       largura / 2,
-      42,
+      53,
       {
-        align: "center"
+        align: "center",
       }
     )
-
-    pdf.setFontSize(14)
 
     pdf.setFont(
       "helvetica",
       "normal"
     )
 
-    pdf.text(
-      "Certificado de Conclusão",
-      largura / 2,
-      55,
-      {
-        align: "center"
-      }
-    )
-
-    // Texto
-    pdf.setTextColor(
-      45,
-      45,
-      45
-    )
-
-    pdf.setFontSize(12)
+    pdf.setFontSize(13)
 
     pdf.text(
       "Certificamos que",
       largura / 2,
-      78,
+      72,
       {
-        align: "center"
+        align: "center",
       }
     )
 
-    // Nome
     pdf.setFont(
       "helvetica",
       "bold"
@@ -484,41 +386,28 @@ export default function Certificados() {
 
     pdf.setFontSize(22)
 
-    pdf.setTextColor(
-      90,
-      45,
-      51
-    )
-
     pdf.text(
       certificado.usuario,
       largura / 2,
-      94,
+      88,
       {
-        align: "center"
+        align: "center",
       }
     )
 
-    // Curso
     pdf.setFont(
       "helvetica",
       "normal"
     )
 
-    pdf.setFontSize(12)
-
-    pdf.setTextColor(
-      45,
-      45,
-      45
-    )
+    pdf.setFontSize(13)
 
     pdf.text(
       "concluiu com êxito o curso",
       largura / 2,
-      110,
+      103,
       {
-        align: "center"
+        align: "center",
       }
     )
 
@@ -527,18 +416,23 @@ export default function Certificados() {
       "bold"
     )
 
-    pdf.setFontSize(18)
+    pdf.setFontSize(19)
+
+    const tituloCurso =
+      pdf.splitTextToSize(
+        certificado.curso,
+        largura - 80
+      )
 
     pdf.text(
-      certificado.curso,
+      tituloCurso,
       largura / 2,
-      125,
+      119,
       {
-        align: "center"
+        align: "center",
       }
     )
 
-    // Plataforma
     pdf.setFont(
       "helvetica",
       "normal"
@@ -547,48 +441,63 @@ export default function Certificados() {
     pdf.setFontSize(11)
 
     pdf.text(
-      "Plataforma de Cursos Online",
+      `Certificado emitido em ${formatarData(
+        certificado.dataEmissao
+      )}`,
       largura / 2,
-      145,
+      148,
       {
-        align: "center"
+        align: "center",
       }
     )
 
-    // Rodapé
-    pdf.setFontSize(9)
-
-    pdf.setTextColor(
-      90,
-      90,
-      90
-    )
+    pdf.setFontSize(10)
 
     pdf.text(
-      `Código de verificação: ${certificado.codigo}`,
-      25,
-      altura - 28
-    )
-
-    pdf.text(
-      `Data de emissão: ${certificado.dataEmissao}`,
-      largura - 25,
-      altura - 28,
+      "Código de verificação",
+      largura / 2,
+      168,
       {
-        align: "right"
+        align: "center",
+      }
+    )
+
+    pdf.setFont(
+      "courier",
+      "bold"
+    )
+
+    pdf.setFontSize(12)
+
+    pdf.text(
+      certificado.codigo,
+      largura / 2,
+      176,
+      {
+        align: "center",
+      }
+    )
+
+    pdf.setFont(
+      "helvetica",
+      "normal"
+    )
+
+    pdf.setFontSize(8)
+
+    pdf.text(
+      "Este documento foi emitido eletronicamente pela Plataforma Academia.",
+      largura / 2,
+      altura - 20,
+      {
+        align: "center",
       }
     )
 
     const nomeArquivo =
-      certificado.usuario
-        .toLowerCase()
-        .normalize("NFD")
+      certificado.curso
         .replace(
-          /[\u0300-\u036f]/g,
-          ""
-        )
-        .replace(
-          /[^a-z0-9]+/g,
+          /[^a-zA-Z0-9À-ÿ]+/g,
           "-"
         )
         .replace(
@@ -601,521 +510,271 @@ export default function Certificados() {
     )
   }
 
-  // =========================================================
-  // FILTRO DO HISTÓRICO
-  // =========================================================
-
-  const certificadosFiltrados =
-    useMemo(() => {
-      const termo =
-        busca
-          .trim()
-          .toLowerCase()
-
-      if (!termo) {
-        return certificados
-      }
-
-      return certificados.filter(
-        (certificado) =>
-          certificado.usuario
-            .toLowerCase()
-            .includes(termo) ||
-          certificado.curso
-            .toLowerCase()
-            .includes(termo) ||
-          certificado.codigo
-            .toLowerCase()
-            .includes(termo)
-      )
-    }, [
-      certificados,
-      busca
-    ])
-
-  // =========================================================
-  // INTERFACE
-  // =========================================================
-
   return (
     <div className="container mt-4 crud-page">
-
       <div className="crud-page-header">
-        <h2>Certificados</h2>
+        <h2>
+          Certificados
+        </h2>
 
         <p>
-          Emita e gerencie certificados
-          de cursos concluídos.
+          Consulte os certificados
+          emitidos pela plataforma.
         </p>
       </div>
 
-      <div className="crud-two-column">
+      <div
+        className={
+          ehAdmin
+            ? "crud-two-column"
+            : ""
+        }
+      >
+        {ehAdmin && (
+          <div className="card crud-form-card">
+            <h5>
+              Emitir certificado
+            </h5>
 
-        {/* EMISSÃO */}
-        <div className="card crud-form-card">
+            <p className="text-muted small">
+              Apenas matrículas com
+              curso concluído podem
+              receber certificado.
+            </p>
 
-          <h5>
-            Emitir certificado
-          </h5>
+            <div className="mb-3">
+              <label className="form-label text-muted">
+                Matrícula concluída
+              </label>
 
-          {loading ? (
+              <select
+                className="form-select"
+                value={
+                  matriculaSelecionada
+                }
+                onChange={(e) =>
+                  setMatriculaSelecionada(
+                    e.target.value
+                  )
+                }
+              >
+                <option value="">
+                  Selecione uma
+                  matrícula
+                </option>
 
-            <div className="text-muted">
-              Carregando...
-            </div>
+                {matriculasElegiveis.map(
+                  (matricula) => {
+                    const usuario =
+                      buscarUsuario(
+                        matricula.idUsuario
+                      )
 
-          ) : matriculasDisponiveis
-              .length === 0 ? (
+                    const curso =
+                      buscarCurso(
+                        matricula.idCurso
+                      )
 
-            <div
-              style={{
-                padding: "14px",
-                border:
-                  "1px solid var(--border)",
-                borderRadius: "8px"
-              }}
-            >
-              <div className="d-flex gap-2">
-
-                <i className="bi bi-info-circle text-muted"></i>
-
-                <div>
-                  <div
-                    style={{
-                      fontSize: "12px"
-                    }}
-                  >
-                    Nenhuma conclusão
-                    disponível para emissão.
-                  </div>
-
-                  <small className="text-muted">
-                    O aluno precisa concluir
-                    todas as aulas do curso e
-                    ainda não possuir um
-                    certificado para ele.
-                  </small>
-                </div>
-
-              </div>
-            </div>
-
-          ) : (
-
-            <form
-              onSubmit={
-                gerarCertificado
-              }
-            >
-
-              <div className="mb-3">
-
-                <label className="form-label text-muted">
-                  Conclusão
-                </label>
-
-                <select
-                  className="form-select"
-                  value={
-                    idMatricula
-                  }
-                  onChange={(e) =>
-                    setIdMatricula(
-                      e.target.value
+                    return (
+                      <option
+                        key={
+                          matricula.id
+                        }
+                        value={
+                          matricula.id
+                        }
+                      >
+                        {usuario?.nome ??
+                          `Usuário ${matricula.idUsuario}`}{" "}
+                        -{" "}
+                        {curso?.nome ??
+                          `Curso ${matricula.idCurso}`}
+                      </option>
                     )
                   }
-                >
-                  <option value="">
-                    Selecione um curso concluído
-                  </option>
-
-                  {matriculasDisponiveis.map(
-                    (matricula) => {
-
-                      const usuario =
-                        buscarUsuario(
-                          matricula.idUsuario
-                        )
-
-                      const curso =
-                        buscarCurso(
-                          matricula.idCurso
-                        )
-
-                      return (
-                        <option
-                          key={
-                            matricula.id
-                          }
-                          value={
-                            matricula.id
-                          }
-                        >
-                          {usuario?.nome ||
-                            "Usuário"}{" "}
-                          —{" "}
-                          {curso?.nome ||
-                            "Curso"}
-                        </option>
-                      )
-                    }
-                  )}
-
-                </select>
-
-              </div>
-
-              <div className="crud-form-actions">
-
-                <button
-                  type="submit"
-                  className="crud-btn crud-btn-primary"
-                >
-                  <i className="bi bi-award"></i>
-                  Emitir certificado
-                </button>
-
-              </div>
-
-            </form>
-
-          )}
-
-        </div>
-
-        {/* HISTÓRICO */}
-        <div className="card crud-list-card">
-
-          <div className="crud-list-header">
-
-            <div className="d-flex justify-content-between align-items-center gap-3">
-
-              <div>
-                <h5>
-                  Certificados emitidos
-                </h5>
-
-                <small className="text-muted">
-                  Histórico de certificações
-                </small>
-              </div>
-
-              <div
-                style={{
-                  width: "220px",
-                  maxWidth: "100%"
-                }}
-              >
-                <div className="input-group input-group-sm">
-
-                  <span className="input-group-text">
-                    <i className="bi bi-search"></i>
-                  </span>
-
-                  <input
-                    className="form-control"
-                    placeholder="Buscar..."
-                    value={busca}
-                    onChange={(e) =>
-                      setBusca(
-                        e.target.value
-                      )
-                    }
-                  />
-
-                </div>
-              </div>
-
+                )}
+              </select>
             </div>
 
+            {matriculasElegiveis.length ===
+              0 && (
+              <div
+                className="alert alert-secondary"
+                style={{
+                  fontSize:
+                    "12px",
+                }}
+              >
+                Não há matrículas
+                concluídas aguardando
+                emissão de
+                certificado.
+              </div>
+            )}
+
+            <div className="crud-form-actions">
+              <button
+                type="button"
+                className="crud-btn crud-btn-primary"
+                onClick={
+                  emitirCertificado
+                }
+                disabled={
+                  !matriculaSelecionada ||
+                  emitindo
+                }
+              >
+                <i className="bi bi-award" />
+
+                {emitindo
+                  ? " Emitindo..."
+                  : " Emitir certificado"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="card crud-list-card">
+          <div className="crud-list-header">
+            <div>
+              <h5>
+                {ehAdmin
+                  ? "Certificados emitidos"
+                  : "Meus certificados"}
+              </h5>
+
+              <small className="text-muted">
+                {certificados.length}{" "}
+                certificado(s)
+              </small>
+            </div>
           </div>
 
           {loading ? (
-
             <div className="p-4 text-center text-muted">
               Carregando...
             </div>
-
-          ) : certificadosFiltrados
-              .length === 0 ? (
-
+          ) : certificados.length ===
+            0 ? (
             <div className="p-4 text-center">
+              <i className="bi bi-award fs-3 text-muted" />
 
-              <i className="bi bi-award fs-3 text-muted"></i>
-
-              <p className="mt-2 mb-0">
-                Nenhum certificado encontrado.
+              <p className="mt-2 mb-1">
+                Nenhum certificado
+                encontrado.
               </p>
 
+              {!ehAdmin && (
+                <small className="text-muted">
+                  Seus certificados
+                  aparecerão aqui após
+                  a conclusão dos
+                  cursos e a emissão.
+                </small>
+              )}
             </div>
-
           ) : (
+            <div className="p-3">
+              <div className="d-flex flex-column gap-3">
+                {certificados.map(
+                  (certificado) => (
+                    <div
+                      key={
+                        certificado.id
+                      }
+                      className="card crud-item-card"
+                    >
+                      <div className="d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                          <div className="d-flex align-items-center gap-2 mb-2">
+                            <i className="bi bi-award" />
 
-            <div className="table-responsive">
-
-              <table className="table crud-table align-middle">
-
-                <thead>
-                  <tr>
-                    <th className="ps-3">
-                      Usuário
-                    </th>
-
-                    <th>
-                      Curso
-                    </th>
-
-                    <th>
-                      Código
-                    </th>
-
-                    <th>
-                      Emissão
-                    </th>
-
-                    <th className="text-end pe-3">
-                      Ações
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody>
-
-                  {certificadosFiltrados.map(
-                    (certificado) => (
-
-                      <tr
-                        key={
-                          certificado.id
-                        }
-                      >
-
-                        <td className="ps-3">
-                          <strong>
-                            {
-                              certificado.usuario
-                            }
-                          </strong>
-                        </td>
-
-                        <td>
-                          {
-                            certificado.curso
-                          }
-                        </td>
-
-                        <td>
-                          <code>
-                            {
-                              certificado.codigo
-                            }
-                          </code>
-                        </td>
-
-                        <td>
-                          {
-                            certificado.dataEmissao
-                          }
-                        </td>
-
-                        <td className="text-end pe-3">
-
-                          <div className="crud-actions">
-
-                            <button
-                              type="button"
-                              className="crud-btn crud-btn-secondary crud-btn-icon"
-                              title="Visualizar certificado"
-                              onClick={() =>
-                                setCertificadoGerado(
-                                  certificado
-                                )
+                            <strong>
+                              {
+                                certificado.curso
                               }
-                            >
-                              <i className="bi bi-eye"></i>
-                            </button>
+                            </strong>
+                          </div>
 
-                            <button
-                              type="button"
-                              className="crud-btn crud-btn-secondary crud-btn-icon"
-                              title="Baixar PDF"
-                              onClick={() =>
-                                baixarCertificado(
-                                  certificado
-                                )
+                          {ehAdmin && (
+                            <div className="text-muted small mb-1">
+                              Aluno:{" "}
+                              {
+                                certificado.usuario
                               }
-                            >
-                              <i className="bi bi-download"></i>
-                            </button>
+                            </div>
+                          )}
 
+                          {certificado.trilha && (
+                            <div className="text-muted small mb-1">
+                              Trilha:{" "}
+                              {
+                                certificado.trilha
+                              }
+                            </div>
+                          )}
+
+                          <div className="text-muted small mb-1">
+                            Emissão:{" "}
+                            {formatarData(
+                              certificado.dataEmissao
+                            )}
+                          </div>
+
+                          <div className="mt-2">
+                            <small className="text-muted">
+                              Código de
+                              verificação
+                            </small>
+
+                            <div>
+                              <code>
+                                {
+                                  certificado.codigo
+                                }
+                              </code>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="crud-actions">
+                          <button
+                            type="button"
+                            className="crud-btn crud-btn-primary crud-btn-icon"
+                            title="Baixar certificado em PDF"
+                            onClick={() =>
+                              gerarPDF(
+                                certificado
+                              )
+                            }
+                          >
+                            <i className="bi bi-file-earmark-pdf" />
+                          </button>
+
+                          {ehAdmin && (
                             <button
                               type="button"
                               className="crud-btn crud-btn-delete crud-btn-icon"
                               title="Excluir certificado"
                               onClick={() =>
-                                handleDelete(
+                                excluirCertificado(
                                   certificado
                                 )
                               }
                             >
-                              <i className="bi bi-trash3"></i>
+                              <i className="bi bi-trash3" />
                             </button>
-
-                          </div>
-
-                        </td>
-
-                      </tr>
-
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
-
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
             </div>
-
           )}
-
         </div>
-
       </div>
-
-      {/* PRÉ-VISUALIZAÇÃO */}
-      {certificadoGerado && (
-
-        <div
-          className="card mt-4 p-4"
-          style={{
-            maxWidth: "900px",
-            margin:
-              "0 auto 30px"
-          }}
-        >
-
-          <div className="d-flex justify-content-between align-items-center gap-3 mb-4">
-
-            <div>
-              <h5 className="mb-1">
-                Pré-visualização
-              </h5>
-
-              <small className="text-muted">
-                Certificado emitido
-              </small>
-            </div>
-
-            <button
-              type="button"
-              className="crud-btn crud-btn-primary"
-              onClick={() =>
-                baixarCertificado(
-                  certificadoGerado
-                )
-              }
-            >
-              <i className="bi bi-download"></i>
-              Baixar PDF
-            </button>
-
-          </div>
-
-          <div
-            style={{
-              minHeight: "400px",
-              border:
-                "3px solid var(--wine)",
-              outline:
-                "1px solid var(--wine)",
-              outlineOffset:
-                "-9px",
-              padding:
-                "55px 40px",
-              textAlign: "center",
-              background:
-                "var(--surface)"
-            }}
-          >
-
-            <h2
-              style={{
-                letterSpacing:
-                  "5px",
-                color:
-                  "var(--wine-light)"
-              }}
-            >
-              CERTIFICADO
-            </h2>
-
-            <p className="text-muted">
-              Certificado de Conclusão
-            </p>
-
-            <div className="mt-5">
-
-              <small className="text-muted">
-                Certificamos que
-              </small>
-
-              <h3 className="mt-2">
-                {
-                  certificadoGerado.usuario
-                }
-              </h3>
-
-              <p className="mt-4 mb-1">
-                concluiu com êxito o curso
-              </p>
-
-              <h4
-                style={{
-                  color:
-                    "var(--wine-light)"
-                }}
-              >
-                {
-                  certificadoGerado.curso
-                }
-              </h4>
-
-              <p className="text-muted mt-4">
-                Plataforma de Cursos Online
-              </p>
-
-            </div>
-
-            <div
-              className="d-flex justify-content-between mt-5 pt-4"
-              style={{
-                borderTop:
-                  "1px solid var(--border)"
-              }}
-            >
-
-              <small className="text-muted">
-                Código:{" "}
-                {
-                  certificadoGerado.codigo
-                }
-              </small>
-
-              <small className="text-muted">
-                Emissão:{" "}
-                {
-                  certificadoGerado.dataEmissao
-                }
-              </small>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      )}
-
     </div>
   )
 }
