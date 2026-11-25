@@ -10,9 +10,16 @@ import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { PerfilUsuario } from '../generated/prisma/enums';
 
+import { Logger } from '@nestjs/common';
+import { KafkaService } from '../kafka/kafka.service';
 @Injectable()
 export class UsuarioService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly kafkaService: KafkaService,
+  ) { }
+
+  private readonly logger = new Logger(UsuarioService.name);
 
   private readonly dadosPublicos = {
     ID_Usuario: true,
@@ -21,6 +28,7 @@ export class UsuarioService {
     perfil: true,
     date: true,
   };
+
 
   async create(
     createUsuarioDto: CreateUsuarioDto,
@@ -44,7 +52,7 @@ export class UsuarioService {
       salt,
     );
 
-    return this.prisma.usuario.create({
+    const usuario = await this.prisma.usuario.create({
       data: {
         name: createUsuarioDto.name,
         email: createUsuarioDto.email,
@@ -53,7 +61,26 @@ export class UsuarioService {
       },
       select: this.dadosPublicos,
     });
+
+    if (usuario.perfil === PerfilUsuario.ALUNO) {
+      try {
+        await this.kafkaService.publicarBoasVindas({
+          usuarioId: usuario.ID_Usuario,
+          nome: usuario.name,
+          email: usuario.email,
+          mensagem: `Bem-vindo(a) à Plataforma de Cursos, ${usuario.name}!`,
+        });
+      } catch (error) {
+        this.logger.error(
+          `Falha ao publicar boas-vindas para o usuário ${usuario.ID_Usuario}`,
+          error instanceof Error ? error.stack : String(error),
+        );
+      }
+    }
+
+    return usuario;
   }
+
 
   async createByAdmin(createUsuarioDto: CreateUsuarioDto) {
     return this.create(

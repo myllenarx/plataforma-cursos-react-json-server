@@ -31,6 +31,7 @@ model Usuario {
   avaliacoes   Avaliacao[]
   certificados Certificado[]
   assinaturas  Assinatura[]
+  notificacoes Notificacao[]
 }
 
 
@@ -252,6 +253,21 @@ model Pagamento {
   Id_Transacao_Gateway String
 
   assinatura Assinatura @relation(fields: [ID_Assinatura], references: [ID_Assinatura])
+}
+
+
+model Notificacao {
+  ID_Notificacao Int      @id @default(autoincrement())
+  ID_Usuario     Int
+  EventoId       String   @unique
+  Titulo         String
+  Mensagem       String
+  Lida           Boolean  @default(false)
+  DataCriacao    DateTime @default(now())
+
+  usuario Usuario @relation(fields: [ID_Usuario], references: [ID_Usuario], onDelete: Cascade)
+
+  @@index([ID_Usuario, DataCriacao])
 }
 
 

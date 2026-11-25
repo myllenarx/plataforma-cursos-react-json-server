@@ -87,3 +87,8 @@ export type Assinatura = Prisma.AssinaturaModel
  * 
  */
 export type Pagamento = Prisma.PagamentoModel
+/**
+ * Model Notificacao
+ * 
+ */
+export type Notificacao = Prisma.NotificacaoModel

@@ -17,6 +17,8 @@ import { CertificadoModule } from './certificado/certificado.module';
 import { PlanoModule } from './plano/plano.module';
 import { AssinaturaModule } from './assinatura/assinatura.module';
 import { PagamentoModule } from './pagamento/pagamento.module';
+import { KafkaModule } from './kafka/kafka.module';
+import { NotificacaoModule } from './notificacao/notificacao.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { PagamentoModule } from './pagamento/pagamento.module';
     PlanoModule,
     AssinaturaModule,
     PagamentoModule,
+    KafkaModule,
+    NotificacaoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
