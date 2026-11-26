@@ -8,6 +8,9 @@ import { useAuth } from '../context/AuthContext';
 import { catalogApi } from '../services/catalog';
 import type { Curso } from '../types/catalog';
 import { styles } from '../styles/CatalogStyles';
+import { billingApi } from '../services/billing';
+import { usuarioIdDoToken } from '../services/enrollment';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'CourseDetail'>;
 export function CourseDetailScreen({ navigation, route }: Props) {
   const { token } = useAuth();
@@ -34,22 +37,111 @@ export function CourseDetailScreen({ navigation, route }: Props) {
     finally { setLoading(false); }
   }, [token, route.params.id]);
   useFocusEffect(useCallback(() => { void load(); }, [load]));
-  async function matricular() {
-    if (!token || !item || busy || enrolled) return;
-    setBusy(true);
-    setEnrollmentError('');
-    try {
-      await enrollmentApi.matricular(token, item.ID_Curso);
+  
+async function matricular() {
+  if (!token || !item || busy || enrolled) return;
+
+  setBusy(true);
+  setEnrollmentError('');
+
+  try {
+    const assinaturas = await billingApi.assinaturas(token);
+    const usuarioId = usuarioIdDoToken(token);
+    const agora = Date.now();
+
+    const vigentes = assinaturas.filter(assinatura =>
+      assinatura.ID_Usuario === usuarioId &&
+      new Date(assinatura.DataInicio).getTime() <= agora &&
+      new Date(assinatura.DataFim).getTime() >= agora
+    );
+
+    const possuiPlanoPago = vigentes.some(assinatura =>
+      assinatura.pagamentos.some(pagamento =>
+        Number(pagamento.ValorPago) >=
+        Number(assinatura.plano.Preco)
+      )
+    );
+
+    if (!possuiPlanoPago) {
+      const pendente = vigentes.find(
+        assinatura => assinatura.pagamentos.length === 0
+      );
+
+      if (pendente) {
+        Alert.alert(
+          'Pagamento necessário',
+          'Realize o pagamento da sua assinatura para acessar os cursos.',
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            {
+              text: 'Pagar',
+              onPress: () =>
+                navigation.navigate('Payment', {
+                  assinaturaId: pendente.ID_Assinatura,
+                }),
+            },
+          ],
+        );
+      } else if (vigentes.length > 0) {
+        Alert.alert(
+          'Pagamento insuficiente',
+          'Sua assinatura possui um pagamento que não cobre o valor do plano. Verifique suas assinaturas.',
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            {
+              text: 'Ver assinaturas',
+              onPress: () =>
+                navigation.navigate('MySubscriptions'),
+            },
+          ],
+        );
+      } else {
+        Alert.alert(
+          'Assinatura necessária',
+          'Contrate um plano para realizar a matrícula e acessar os cursos.',
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            {
+              text: 'Ver planos',
+              onPress: () => navigation.navigate('Plans'),
+            },
+          ],
+        );
+      }
+
+      return;
+    }
+
+    await enrollmentApi.matricular(token, item.ID_Curso);
+
+    setEnrolled(true);
+
+    Alert.alert(
+      'Matrícula realizada',
+      'O curso já está disponível em Meus cursos.',
+    );
+
+  } catch (e) {
+    const message =
+      e instanceof Error
+        ? e.message
+        : 'Não foi possível realizar a matrícula.';
+
+    if (/já está matriculado/i.test(message)) {
       setEnrolled(true);
-      Alert.alert('Matrícula realizada', 'O curso já está disponível em Meus cursos.');
-    } catch (e) {
-      const message = e instanceof Error ? e.message : 'Não foi possível realizar a matrícula.';
-      if (/já está matriculado/i.test(message)) {
-        setEnrolled(true);
-        Alert.alert('Matrícula existente', 'Este curso já está na sua lista.');
-      } else setEnrollmentError(message);
-    } finally { setBusy(false); }
+
+      Alert.alert(
+        'Matrícula existente',
+        'Este curso já está na sua lista.',
+      );
+    } else {
+      setEnrollmentError(message);
+    }
+  } finally {
+    setBusy(false);
   }
+}
+
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" /></View>;
   if (error || !item) return <View style={styles.center}><Text style={styles.error}>{error || 'Curso não encontrado.'}</Text></View>;
   return <ScrollView style={styles.screen} contentContainerStyle={styles.content}>

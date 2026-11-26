@@ -78,6 +78,39 @@ export class MatriculaService {
       );
     }
 
+
+    if (usuario.perfil === PerfilUsuario.ALUNO) {
+      const agora = new Date();
+
+      const assinaturas = await this.prisma.assinatura.findMany({
+        where: {
+          ID_Usuario,
+          DataInicio: {
+            lte: agora,
+          },
+          DataFim: {
+            gte: agora,
+          },
+        },
+        include: {
+          plano: true,
+          pagamentos: true,
+        },
+      });
+
+      const possuiPlanoPago = assinaturas.some(assinatura =>
+        assinatura.pagamentos.some(pagamento =>
+          pagamento.ValorPago.gte(assinatura.plano.Preco),
+        ),
+      );
+
+      if (!possuiPlanoPago) {
+        throw new ForbiddenException(
+          'É necessário possuir uma assinatura vigente e paga para realizar a matrícula.',
+        );
+      }
+    }
+
     return this.prisma.matricula.create({
       data: {
         ID_Usuario,
